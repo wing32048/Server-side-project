@@ -1,0 +1,17 @@
+{
+    "name": "group29",
+    "description": "project",
+    "author": "*",
+    "version": "1.0.0.",
+    "dependencies": {
+        "express": "*",
+        "ejs": "*",
+        "passport": "*",
+        "express-session": "*",
+        "passport-facebook":"*"
+    },
+    "engine": "*",
+    "scripts": {
+        "start": "node server"
+    }
+}
