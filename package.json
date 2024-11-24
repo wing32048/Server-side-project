@@ -1,17 +1,21 @@
 {
-    "name": "group29",
-    "description": "project",
-    "author": "*",
-    "version": "1.0.0.",
-    "dependencies": {
-        "express": "*",
-        "ejs": "*",
-        "passport": "*",
-        "express-session": "*",
-        "passport-facebook":"*"
-    },
-    "engine": "*",
+    "name": "project",
+    "version": "1.0.3",
+    "description": "A Node.js project with user registration and login functionality",
+    "main": "server.js",
     "scripts": {
-        "start": "node server"
+        "start": "node server.js"
+    },
+    "author": "bigwong",
+    "license": "MIT",
+    "dependencies": {
+        "bcryptjs": "^2.4.3",
+        "body-parser": "^1.19.0",
+        "cookie-parser": "^1.4.6",
+        "ejs": "^3.1.8",
+        "express": "^4.17.3",
+        "express-session": "^1.17.3",
+        "mongoose": "^6.0.14",
+        "uuid": "^8.3.2"
     }
 }
