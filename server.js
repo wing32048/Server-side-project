@@ -1,127 +1,79 @@
+const express = require('express');
+const mongoose = require('mongoose');
+const { v4: uuidv4 } = require('uuid');
+const bcrypt = require('bcrypt');
 
-// 1. Create Blog Post
-app.post('/api/blogs', authenticateUser, async (req, res) => {
-  const { title, channel } = req.body;
+const app = express();
+const PORT = 8080;
 
-  if (!title || !channel) {
-    return res.status(400).json({ error: 'Title and channel are required' });
-  }
+const uri = "mongodb+srv://www-data:RBFarENUKSNgpAVg@cluster0.talem.mongodb.net/project?retryWrites=true&w=majority&appName=Cluster0";
+mongoose.connect(uri);
 
-  if (!ALLOWED_CHANNELS.includes(channel)) {
-    return res.status(400).json({ error: `Invalid channel. Allowed channels are: ${ALLOWED_CHANNELS.join(', ')}` });
-  }
+const userSchema = new mongoose.Schema({
+    _id: {
+        type: String,
+        default: uuidv4
+    },
+    email: {
+        type: String,
+        required: true
+    },
+    username: {
+        type: String,
+        required: true
+    },
+    password: {
+        type: String,
+        required: true
+    }
+}, { collection: 'user' });
 
-  try {
-    const blog = new Blog({
-      Blog_id: Math.floor(Math.random() * 100000), // Random unique ID
-      User_id: req.user.User_id,
-      title,
-      channel,
-    });
-    await blog.save();
-    res.status(201).json(blog);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to create blog post' });
-  }
+userSchema.pre('save', async function(next) {
+    const user = this;
+    if (!user.isModified('password')) {
+        return next();
+    }
+
+    try {
+        const hashedPassword = await bcrypt.hash(user.password, 10);
+        user.password = hashedPassword;
+        next();
+    } catch (error) {
+        return next(error);
+    }
 });
 
-// 2. Edit Blog Post
-app.put('/api/blogs/:blogId', authenticateUser, async (req, res) => {
-  const { blogId } = req.params;
-  const { title, channel } = req.body;
+const User = mongoose.model('user', userSchema);
 
-  if (!title || !channel) {
-    return res.status(400).json({ error: 'Title and channel are required' });
-  }
+app.use(express.json());
 
-  if (!ALLOWED_CHANNELS.includes(channel)) {
-    return res.status(400).json({ error: `Invalid channel. Allowed channels are: ${ALLOWED_CHANNELS.join(', ')}` });
-  }
+app.post('/api/newuser', async (req, res) => {
+    const { email, username, password } = req.body;
 
-  try {
-    const blog = await Blog.findOne({ Blog_id: blogId });
-    if (!blog) {
-      return res.status(404).json({ error: 'Blog post not found' });
+    if (!email || !username || !password) {
+        return res.status(400).json({ message: 'Email, username, and password are required' });
     }
 
-    if (blog.User_id !== req.user.User_id) {
-      return res.status(403).json({ error: 'You are not allowed to edit this blog post' });
+    try {
+        const newUser = new User({ email, username, password });
+        await newUser.save();
+        return res.status(201).json(newUser);
+    } catch (error) {
+        return res.status(500).json({ message: 'Failed to create user' });
     }
-
-    blog.title = title;
-    blog.channel = channel;
-    await blog.save();
-    res.status(200).json(blog);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to edit blog post' });
-  }
 });
 
-// 3. Fetch a Single Blog Post
-app.get('/api/blogs/:blogId', authenticateUser, async (req, res) => {
-  const { blogId } = req.params;
-
-  try {
-    const blog = await Blog.findOne({ Blog_id: blogId });
-    if (!blog) {
-      return res.status(404).json({ error: 'Blog post not found' });
+app.get('/api/showalluser', async (req, res) => {
+    try {
+        const users = await User.find();
+        res.json(users);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Internal server error' });
     }
-    res.status(200).json(blog);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch blog post' });
-  }
+
 });
 
-// 4. Create Comment
-app.post('/api/blogs/:blogId/comments', authenticateUser, async (req, res) => {
-  const { blogId } = req.params;
-  const { comment } = req.body;
-
-  if (!comment) {
-    return res.status(400).json({ error: 'Comment text is required' });
-  }
-
-  try {
-    const blog = await Blog.findOne({ Blog_id: blogId });
-    if (!blog) {
-      return res.status(404).json({ error: 'Blog post not found' });
-    }
-
-    const newComment = new Comment({
-      Blog_id: blogId,
-      User_id: req.user.User_id,
-      comment,
-    });
-    await newComment.save();
-    res.status(201).json(newComment);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to create comment' });
-  }
-});
-
-// 5. Edit Comment
-app.put('/api/blogs/:blogId/comments/:commentId', authenticateUser, async (req, res) => {
-  const { blogId, commentId } = req.params;
-  const { comment } = req.body;
-
-  if (!comment) {
-    return res.status(400).json({ error: 'Comment text is required' });
-  }
-
-  try {
-    const commentToEdit = await Comment.findOne({ _id: commentId, Blog_id: blogId });
-    if (!commentToEdit) {
-      return res.status(404).json({ error: 'Comment not found' });
-    }
-
-    if (commentToEdit.User_id !== req.user.User_id) {
-      return res.status(403).json({ error: 'You are not allowed to edit this comment' });
-    }
-
-    commentToEdit.comment = comment;
-    await commentToEdit.save();
-    res.status(200).json(commentToEdit);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to edit comment' });
-  }
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
 });
