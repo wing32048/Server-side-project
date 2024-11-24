@@ -76,10 +76,14 @@ app.get('/api/showalluser', async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
-// curl http://localhost:8080/api/showallusers
+// curl http://localhost:8080/api/showalluser
 app.delete('/api/dropuser/:user_id', async (req, res) => {
     const userid = req.params.user_id;
     try {
+        const user = await USER.findById(userid);
+        if (!user) {
+            return res.status(404).json({ message: `User with user_id ${userid} not found.` });
+        }
         const result = await USER.deleteOne({ _id: userid });
 
         if (result.deletedCount === 1) {
@@ -99,7 +103,7 @@ app.put('/api/updateuser/:userid', async (req, res) => {
     try {
         const user = await USER.findById(userid);
         if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+            return res.status(404).json({ message: `User with user_id ${userid} not found.` });
         }
 
         if (email !== undefined) {
@@ -115,10 +119,10 @@ app.put('/api/updateuser/:userid', async (req, res) => {
             user.admin = admin;
         }
         await user.save();
-        return res.json({ message: 'User updated successfully' });
+        return res.json({ message: `User with user_id ${userid} updated successfully` });
     } catch (error) {
         console.error('Error updating user:', error);
-        return res.status(500).json({ message: 'Failed to update user' });
+        return res.status(500).json({ message: `Failed with user_id ${userid} to update user` });
     }
 });
 // curl -X PUT http://localhost:8080/api/updateuser/14dcb036-fbad-49cf-be5f-6028c4b99a2d \
