@@ -25,6 +25,10 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true
+    },
+    admin: {
+        type: Boolean,
+        default: false
     }
 }, { collection: 'user' });
 
@@ -43,7 +47,7 @@ userSchema.pre('save', async function(next) {
     }
 });
 
-const User = mongoose.model('user', userSchema);
+const USER = mongoose.model('user', userSchema);
 
 app.use(express.json());
 
@@ -54,7 +58,7 @@ app.post('/api/newuser', async (req, res) => {
     }
 
     try {
-        const newUser = new User({ email, username, password });
+        const newUser = new USER({ email, username, password });
         await newUser.save();
         return res.status(201).json({ message: 'User created successfully'});
     } catch (error) {
@@ -65,7 +69,7 @@ app.post('/api/newuser', async (req, res) => {
 // '{"email": "lau.boss@lauboss.com", "username": "lauboss", "password": "P@ssw0rd"}'
 app.get('/api/showalluser', async (req, res) => {
     try {
-        const users = await User.find();
+        const users = await USER.find();
         res.json(users);
     } catch (err) {
         console.error(err);
@@ -76,7 +80,7 @@ app.get('/api/showalluser', async (req, res) => {
 app.delete('/api/dropuser/:user_id', async (req, res) => {
     const userid = req.params.user_id;
     try {
-        const result = await User.deleteOne({ _id: userid });
+        const result = await USER.deleteOne({ _id: userid });
 
         if (result.deletedCount === 1) {
             res.json({ message: `User with user_id ${userid} has been successfully deleted.` });
@@ -89,14 +93,15 @@ app.delete('/api/dropuser/:user_id', async (req, res) => {
     }
 });
 // curl -X DELETE http://localhost:8080/api/dropuser/7dde9edc-5323-48a3-8d19-ef8a2ccc741c
-app.patch('/api/updatauser/:userid', async (req, res) => {
+app.put('/api/updateuser/:userid', async (req, res) => {
     const { userid } = req.params;
-    const { email, username, password } = req.body;
+    const { email, username, password, admin } = req.body;
     try {
-        const user = await User.findById(userid);
+        const user = await USER.findById(userid);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
+
         if (email !== undefined) {
             user.email = email;
         }
@@ -106,18 +111,23 @@ app.patch('/api/updatauser/:userid', async (req, res) => {
         if (password !== undefined) {
             user.password = password;
         }
+        if (admin !== undefined) {
+            user.admin = admin;
+        }
         await user.save();
-        return res.json({ message: 'User updated successfully'});
+        return res.json({ message: 'User updated successfully' });
     } catch (error) {
+        console.error('Error updating user:', error);
         return res.status(500).json({ message: 'Failed to update user' });
     }
 });
-//curl -X PATCH http://localhost:8080/api/updatauser/16830eac-994d-4cf9-92ee- \
+// curl -X PUT http://localhost:8080/api/updateuser/14dcb036-fbad-49cf-be5f-6028c4b99a2d \
 // -H "Content-Type: application/json" \
 // -d '{
 //     "email": "newemail@example.com",
 //     "username": "newusername",
-//     "password": "newpassword"
+//     "password": "newpassword",
+//     "admin": true
 // }'
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
