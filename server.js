@@ -49,7 +49,6 @@ app.use(express.json());
 
 app.post('/api/newuser', async (req, res) => {
     const { email, username, password } = req.body;
-
     if (!email || !username || !password) {
         return res.status(400).json({ message: 'Email, username, and password are required' });
     }
@@ -57,12 +56,13 @@ app.post('/api/newuser', async (req, res) => {
     try {
         const newUser = new User({ email, username, password });
         await newUser.save();
-        return res.status(201).json(newUser);
+        return res.status(201).json({ message: 'User created successfully'});
     } catch (error) {
         return res.status(500).json({ message: 'Failed to create user' });
     }
 });
-
+// curl -X POST http://localhost:8080/api/newuser -H "Content-Type: application/json" -d \
+// '{"email": "lau.boss@lauboss.com", "username": "lauboss", "password": "P@ssw0rd"}'
 app.get('/api/showalluser', async (req, res) => {
     try {
         const users = await User.find();
@@ -71,9 +71,54 @@ app.get('/api/showalluser', async (req, res) => {
         console.error(err);
         res.status(500).json({ error: 'Internal server error' });
     }
-
 });
+// curl http://localhost:8080/api/showallusers
+app.delete('/api/dropuser/:user_id', async (req, res) => {
+    const userid = req.params.user_id;
+    try {
+        const result = await User.deleteOne({ _id: userid });
 
+        if (result.deletedCount === 1) {
+            res.json({ message: `User with user_id ${userid} has been successfully deleted.` });
+        } else {
+            res.status(404).json({ message: `User with user_id ${userid} not found.` });
+        }
+    } catch (error) {
+        console.error("Error deleting user:", error);
+        res.status(500).json({ error: 'An error occurred while deleting the user.' });
+    }
+});
+// curl -X DELETE http://localhost:8080/api/dropuser/7dde9edc-5323-48a3-8d19-ef8a2ccc741c
+app.patch('/api/updatauser/:userid', async (req, res) => {
+    const { userid } = req.params;
+    const { email, username, password } = req.body;
+    try {
+        const user = await User.findById(userid);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        if (email !== undefined) {
+            user.email = email;
+        }
+        if (username !== undefined) {
+            user.username = username;
+        }
+        if (password !== undefined) {
+            user.password = password;
+        }
+        await user.save();
+        return res.json({ message: 'User updated successfully'});
+    } catch (error) {
+        return res.status(500).json({ message: 'Failed to update user' });
+    }
+});
+//curl -X PATCH http://localhost:8080/api/updatauser/16830eac-994d-4cf9-92ee- \
+// -H "Content-Type: application/json" \
+// -d '{
+//     "email": "newemail@example.com",
+//     "username": "newusername",
+//     "password": "newpassword"
+// }'
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
