@@ -8,7 +8,10 @@
         "ejs": "*",
         "passport": "*",
         "express-session": "*",
-        "passport-facebook":"*"
+        "passport-facebook":"*",
+        "mongoose":"*",
+        "uuid":"*",
+        "bcrypt":"*"
     },
     "engine": "*",
     "scripts": {
