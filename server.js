@@ -31,7 +31,8 @@ const userSchema = new mongoose.Schema({
   email: { type: String, unique: true },
   username: String,
   password: String,
-  admin: { type: Boolean, default: false } // 默认值为 false
+  admin: { type: Boolean, default: false }, // 默认值为 false
+  datetime: { type: Date, default: Date.now } // 添加 datetime 字段，默认值为当前时间
 }, { collection: 'user' }); // 指定集合名称为 'user'
 
 const User = mongoose.model('User', userSchema);
@@ -99,7 +100,8 @@ app.post('/signup', async (req, res) => {
       email,
       username,
       password: hashedPassword,
-      admin: false // 默认管理员为 false
+      admin: false, // 默认管理员为 false
+      datetime: new Date() // 设置 datetime 为当前时间
     });
     await newUser.save();
     res.redirect('/'); // 成功注册后重定向到首页
@@ -135,6 +137,18 @@ app.post('/login', async (req, res) => {
   } catch (error) {
     res.status(400).send('Error logging in: ' + error.message);
   }
+});
+
+// 处理 logout 请求
+app.post('/logout', (req, res) => {
+  req.session.destroy(err => {
+    if (err) {
+      console.log('Failed to destroy session:', err);
+      return res.redirect('/admin');
+    }
+    res.clearCookie('user');
+    res.render('logout');
+  });
 });
 
 // 启动服务器
