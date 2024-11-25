@@ -7,6 +7,7 @@ const app = express();
 const PORT = 8080;
 
 const uri = "mongodb+srv://www-data:RBFarENUKSNgpAVg@cluster0.talem.mongodb.net/project?retryWrites=true&w=majority&appName=Cluster0";
+
 mongoose.connect(uri);
 
 const userSchema = new mongoose.Schema({
@@ -29,6 +30,10 @@ const userSchema = new mongoose.Schema({
     admin: {
         type: Boolean,
         default: false
+    },
+    datetime: {
+        type: Date,
+        default: Date.now
     }
 }, { collection: 'user' });
 
@@ -125,88 +130,6 @@ app.put('/api/user/update/:userid', async (req, res) => {
         return res.status(500).json({ message: `Failed with user_id ${userid} to update user` });
     }
 });
-
-
-//for create.ejs (create post)
-app.post('/posts/create', async (req, res) => {
-  const { title, content, channel } = req.body;
-  const user_id = req.session.user_id;
-
-  if (!user_id) {
-    return res.status(403).send('You must be logged in to create a post');
-  }
-
-  // Validate all fields are filled
-  if (!title || !content || !channel) {
-    return res.render('create', { error: 'All fields are required!' });
-  }
-
-  try {
-    const newPost = new Post({
-      user_id,
-      title,
-      content,
-      channel,
-      datetime: new Date(),
-    });
-
-    await newPost.save();
-    res.redirect('/forum'); // Redirect to the forum page after saving
-  } catch (err) {
-    console.error('Error creating post:', err);
-    res.render('create', { error: 'An unexpected error occurred. Please try again.' });
-  }
-});
-
-
-//for createcomment.ejs
-app.post('/posts/:id/comment', async (req, res) => {
-  const { content } = req.body;
-  const blog_id = req.params.id;
-  const user_id = req.session.user_id; // Retrieve user_id from session
-
-  try {
-    // Validate content
-    if (!content || content.trim() === '') {
-      return res.status(400).render('createcomment', {
-        blog_id,
-        title: 'Post Title', // Replace with the title fetched earlier
-        error: 'Comment content cannot be empty.',
-      });
-    }
-
-    // Validate the post exists
-    const post = await Post.findById(blog_id);
-    if (!post) {
-      return res.status(404).render('createcomment', {
-        blog_id,
-        title: 'Unknown Post',
-        error: 'The post you are commenting on does not exist.',
-      });
-    }
-
-    // Create and save the comment
-    const newComment = new Comment({
-      blog_id,
-      content,
-      user_id,
-      datetime: new Date(),
-    });
-    await newComment.save();
-
-    // Redirect back to the post
-    res.redirect(`/posts/${blog_id}`);
-  } catch (err) {
-    console.error('Error adding comment:', err);
-    res.status(500).render('createcomment', {
-      blog_id,
-      title: 'Unknown Post',
-      error: 'An unexpected error occurred. Please try again later.',
-    });
-  }
-});
-
-
 // curl -X PUT http://localhost:8080/api/updateuser/14dcb036-fbad-49cf-be5f-6028c4b99a2d \
 // -H "Content-Type: application/json" \
 // -d '{
@@ -215,6 +138,96 @@ app.post('/posts/:id/comment', async (req, res) => {
 //     "password": "newpassword",
 //     "admin": true
 // }'
+app.get('/api/user/get_with_username/:username', async (req, res) => {
+    const username = req.params.username;
+    try {
+        const users = await USER.find({ username: { $regex: username, $options: 'i' } });
+        res.json(users);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'An error occurred while fetching users.' });
+    }
+});
+
+app.get('/api/blogs/get_all_blog', async (req, res) => {
+    try {
+        const blogCollection = mongoose.connection.collection('blog');
+        const aggregationResult = await blogCollection.aggregate([
+            {
+                $lookup: {
+                    from: 'user',
+                    localField: 'user_id',
+                    foreignField: '_id',
+                    as: 'userdetails'
+                }
+            },
+            {
+                $sort: {
+                    datatime: 1
+                }
+            }
+        ]).toArray();
+
+        res.json(aggregationResult);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+app.get('/api/blogs/get_blog_comment/:blogid', async (req, res) => {
+    try {
+        const blogid = req.params.blogid;
+
+        const commentCollection = mongoose.connection.collection('comment');
+        const aggregationResult = await commentCollection.aggregate([
+            {
+                $match: {
+                    blog_id: blogid  // Assuming the field storing the blog id is 'blog_id'
+                }
+            },
+            {
+                $lookup: {
+                    from: 'user',
+                    localField: 'user_id',
+                    foreignField: '_id',
+                    as: 'userdetails'
+                }
+            },
+            {
+                $sort: {
+                    datatime: 1
+                }
+            }
+        ]).toArray();
+
+        res.json(aggregationResult);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+app.delete('/api/blogs/delete_comment/:comment_id', async (req, res) => {
+    const commentid = req.params.comment_id;
+    try {
+        const commentCollection = mongoose.connection.collection('comment');
+        const comment = await commentCollection.findOne({ _id: commentid });
+        if (!comment) {
+            return res.status(404).json({ message: `Comment with comment_id ${commentid} not found.` });
+        }
+        const result = await commentCollection.deleteOne({ _id: commentid });
+        if (result.deletedCount === 1) {
+            res.json({ message: `Comment with comment_id ${commentid} has been successfully deleted.` });
+        } else {
+            res.status(404).json({ message: `Comment with comment_id ${commentid} not found.` });
+        }
+    } catch (error) {
+        console.error("Error deleting comment:", error);
+        res.status(500).json({ error: 'An error occurred while deleting the comment.' });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });

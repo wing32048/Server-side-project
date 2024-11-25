@@ -1,24 +1,22 @@
 import os
 import json
 import requests
-import time
 from tabulate import tabulate
 
-def showalluser():
+def show_all_user():
     output = os.popen('curl http://localhost:8080/api/user/showall').read()
     data = json.loads(output)
-    print(data)
     os.system('clear')
-    table_data = [[item['_id'], item['email'], item['username'], item['admin']] for item in data]
-    headers = ['id', 'email', 'username', 'admin']
+    table_data = [[item['_id'], item['email'], item['username'], item['admin'], item['datetime']] for item in data]
+    headers = ['id', 'email', 'username', 'admin','datetime']
     print(tabulate(table_data,headers,tablefmt='grid'))
     input("Press Enter to go back to the index...")
 
-def createuser():
+def create_user():
     os.system('clear')
-    email = str(input('What is the email: '))
-    username = str(input('What is the username: '))
-    password = str(input('What is the password: '))
+    email = str(input('Input email: '))
+    username = str(input('Input username: '))
+    password = str(input('Input password: '))
     output = os.popen(f'curl -X POST http://localhost:8080/api/user/add -H "Content-Type: application/json" -d \'{{"email": "{email}", "username": "{username}", "password": "{password}"}}\'').read()
     data = json.loads(output)
     os.system('clear')
@@ -27,13 +25,13 @@ def createuser():
     print(tabulate(table_data, headers, tablefmt='grid'))
     input("Press Enter to go back to the index...")
 
-def dropuser():
+def drop_user():
     while True:
         output = os.popen('curl http://localhost:8080/api/user/showall').read()
         data = json.loads(output)
         os.system('clear')
-        table_data = [[item['_id'], item['email'], item['username'], item['admin']] for item in data]
-        headers = ['id', 'email', 'username', 'admin']
+        table_data = [[item['_id'], item['email'], item['username'], item['admin'], item['datetime']] for item in data]
+        headers = ['id', 'email', 'username', 'admin','datetime']
         print(tabulate(table_data,headers,tablefmt='grid'))
         userid = str(input('Input user id to drop user: '))
         if userid == '' :
@@ -51,13 +49,13 @@ def dropuser():
     print(tabulate(table_data, headers, tablefmt='grid'))
     input("Press Enter to go back to the index...")
 
-def updatauser():
+def updata_user():
     while True:
         output = os.popen('curl http://localhost:8080/api/user/showall').read()
         data = json.loads(output)
         os.system('clear')
-        table_data = [[item['_id'], item['email'], item['username'], item['admin']] for item in data]
-        headers = ['id', 'email', 'username', 'admin']
+        table_data = [[item['_id'], item['email'], item['username'], item['admin'], item['datetime']] for item in data]
+        headers = ['id', 'email', 'username', 'admin','datetime']
         print(tabulate(table_data,headers,tablefmt='grid'))
         userid = str(input('Input user id to updata user: '))
         if userid == '' :
@@ -93,7 +91,7 @@ def updatauser():
     print(tabulate(table_data, headers, tablefmt='grid'))
     input("Press Enter to go back to the index...")
     
-def checkserver():
+def check_server():
     url = "http://localhost:8080"
     try:
         response = requests.get(url)
@@ -103,14 +101,73 @@ def checkserver():
         input("Press Enter")
         return False
 
+def find_with_username():
+    username = str(input('Input username: '))
+    output = os.popen(f'curl http://localhost:8080/api/user/get_with_username/{username}').read()
+    data = json.loads(output)
+    os.system('clear')
+    table_data = [[item['_id'], item['email'], item['username'], item['admin'], item['datetime']] for item in data]
+    headers = ['id', 'email', 'username', 'admin','datetime']
+    print(tabulate(table_data,headers,tablefmt='grid'))
+    input("Press Enter to go back to the index...")
+
+def get_blog():
+    output = os.popen('curl http://localhost:8080/api/blogs/get_all_blog').read()
+    data = json.loads(output)
+    os.system('clear')
+    table_data = []
+    for item in data:
+        userdetails = item.get('userdetails', [{}])[0]
+        table_data.append([item.get('_id', ''), userdetails.get('username', ''), item.get('title', ''), item.get('content', ''), item.get('datetime', ''), item.get('channel', '')])
+    headers = ["_id", "username", "title", "content", "datetime", "channel"]
+    print(tabulate(table_data, headers=headers, tablefmt="grid"))
+    input("Press Enter to go back to the index...")
+
+def get_blog_comment():
+    blog_id = str(input('Input blog id: '))
+    output = os.popen(f'curl http://localhost:8080/api/blogs/get_blog_comment/{blog_id}').read()
+    data = json.loads(output)
+    os.system('clear')
+    table_data = []
+    for item in data:
+        userdetails = item.get('userdetails', [{}])[0]
+        table_data.append([item.get('_id', ''), userdetails.get('username', ''), item.get('content', ''), item.get('datetime', '')])
+    headers = ["_id", "username", "content", "datetime"]
+    print(tabulate(table_data, headers=headers, tablefmt="grid"))
+    input("Press Enter to go back to the index...")
+
+def delete_comment():
+    os.system('clear')
+
+    while True:
+        comment_id = str(input('Input comment id: '))
+        if comment_id == '' :
+            print('Comment ID cannot be empty. Please input again.')
+            input("Press Enter to continue")
+            os.system('clear')
+            True
+        else:
+            break
+    output = os.popen(f'curl -X DELETE http://localhost:8080/api/blogs/delete_comment/{comment_id}').read()
+    data = json.loads(output)
+    os.system('clear')
+    table_data = [[data['message']]]
+    headers = ['message']
+    print(tabulate(table_data, headers, tablefmt='grid'))
+    input("Press Enter to go back to the index...")
+
 while True:
     index = {
         1: 'Showall user',
         2: 'Create user',
         3: 'Drop user',
-        4: 'Update user'
+        4: 'Update user',
+        5: 'Find with username',
+        6: 'Get blog',
+        7: 'Get blog comment',
+        8: 'Delete comment'
     }
-    if not checkserver():
+    if not check_server():
         break
     try:
         os.system('clear')
@@ -118,18 +175,25 @@ while True:
         headers = ['Option', 'Action']
         print(tabulate(table_data,headers,tablefmt='grid'))
         user_input = input('Choose an action (Enter "quit" to quit): ')
-
         if user_input == 'quit':
             break
         index_num = int(user_input)
         if index_num == 1:
-            showalluser()
+            show_all_user()
         elif index_num == 2:
-            createuser()
+            create_user()
         elif index_num == 3:
-            dropuser()
+            drop_user()
         elif index_num == 4:
-            updatauser()
+            updata_user()
+        elif index_num == 5:
+            find_with_username()
+        elif index_num == 6:
+            get_blog()
+        elif index_num == 7:
+            get_blog_comment()
+        elif index_num == 8:
+            delete_comment()
     except ValueError:
         try:
             os.system('clear')
