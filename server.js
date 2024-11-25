@@ -228,7 +228,7 @@ app.delete('/api/blogs/delete_comment/:comment_id', async (req, res) => {
     }
 });
 
-app.delete('/api/blogs/delete_blog/:user_id', async (req, res) => {
+app.delete('/api/user/delete_blog/:user_id', async (req, res) => {
     const userid = req.params.user_id;
     try {
         const blogCollection = mongoose.connection.collection('blog');
@@ -255,6 +255,40 @@ app.delete('/api/user/delete_comment/:user_id', async (req, res) => {
             res.json({ message: `All comments for user with user_id ${userid} have been successfully deleted.` });
         } else {
             res.status(404).json({ message: `No comments found for user with user_id ${userid} to delete.` });
+        }
+    } catch (error) {
+        console.error("Error deleting comments:", error);
+        res.status(500).json({ error: 'An error occurred while deleting the comments.' });
+    }
+});
+
+app.delete('/api/blogs/delete_blog/:blog_id', async (req, res) => {
+    const blogid = req.params.blog_id;
+    try {
+        const blogCollection = mongoose.connection.collection('blog');
+        const result = await blogCollection.deleteMany({ _id: blogid });
+
+        if (result.deletedCount > 0) {
+            res.json({ message: `All blog for user with blog_id ${blogid} have been successfully deleted.` });
+        } else {
+            res.status(404).json({ message: `No blog found for user with blog_id ${blogid} to delete.` });
+        }
+    } catch (error) {
+        console.error("Error deleting blog:", error);
+        res.status(500).json({ error: 'An error occurred while deleting the bolg.' });
+    }
+});
+
+app.delete('/api/blogs/delete_comments/:blog_id', async (req, res) => {
+    const blogid = req.params.blog_id;
+    try {
+        const commentCollection = mongoose.connection.collection('comment');
+        const result = await commentCollection.deleteMany({ blog_id: blogid });
+
+        if (result.deletedCount > 0) {
+            res.json({ message: `All comments for user with blog_id ${blogid} have been successfully deleted.` });
+        } else {
+            res.status(404).json({ message: `No comments found for user with blog_id ${blogid} to delete.` });
         }
     } catch (error) {
         console.error("Error deleting comments:", error);
