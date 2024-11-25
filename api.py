@@ -217,7 +217,7 @@ while True:
         6: 'Get blog',
         7: 'Get blog comment',
         8: 'Delete comment',
-        9: 'Delete Blog'
+        9: 'Delete blog'
     }
     if not check_server():
         break
