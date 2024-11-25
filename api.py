@@ -4,7 +4,7 @@ import requests
 from tabulate import tabulate
 
 def show_all_user():
-    output = os.popen('curl http://localhost:8080/api/user/showall').read()
+    output = os.popen('curl http://iueight2020.synology.me:8080/api/user/showall').read()
     data = json.loads(output)
     os.system('clear')
     table_data = [[item['_id'], item['email'], item['username'], item['admin'], item['datetime']] for item in data]
@@ -17,7 +17,7 @@ def create_user():
     email = str(input('Input email: '))
     username = str(input('Input username: '))
     password = str(input('Input password: '))
-    output = os.popen(f'curl -X POST http://localhost:8080/api/user/add -H "Content-Type: application/json" -d \'{{"email": "{email}", "username": "{username}", "password": "{password}"}}\'').read()
+    output = os.popen(f'curl -X POST http://iueight2020.synology.me:8080/api/user/add -H "Content-Type: application/json" -d \'{{"email": "{email}", "username": "{username}", "password": "{password}"}}\'').read()
     data = json.loads(output)
     os.system('clear')
     table_data = [[data['message']]]
@@ -27,7 +27,7 @@ def create_user():
 
 def drop_user():
     while True:
-        output = os.popen('curl http://localhost:8080/api/user/showall').read()
+        output = os.popen('curl http://iueight2020.synology.me:8080/api/user/showall').read()
         data = json.loads(output)
         os.system('clear')
         table_data = [[item['_id'], item['email'], item['username'], item['admin'], item['datetime']] for item in data]
@@ -41,17 +41,27 @@ def drop_user():
             True
         else:
             break
-    output = os.popen(f'curl -X DELETE http://localhost:8080/api/user/drop/{userid}').read()
-    data = json.loads(output)
+    output_user = os.popen(f'curl -X DELETE http://iueight2020.synology.me:8080/api/user/drop/{userid}').read()
+    data_user = json.loads(output_user)
+    output_blog = os.popen(f'curl -X DELETE http://iueight2020.synology.me:8080/api/blogs/delete_blog/{userid}').read()
+    data_blog = json.loads(output_blog)
+    output_comment = os.popen(f'curl -X DELETE http://iueight2020.synology.me:8080/api/blogs/delete_comment/{userid}').read()
+    data_comment = json.loads(output_comment)
     os.system('clear')
-    table_data = [[data['message']]]
+    table_data = [[data_user['message']]]
+    headers = ['message']
+    print(tabulate(table_data, headers, tablefmt='grid'))
+    table_data = [[data_blog['message']]]
+    headers = ['message']
+    print(tabulate(table_data, headers, tablefmt='grid'))
+    table_data = [[data_comment['message']]]
     headers = ['message']
     print(tabulate(table_data, headers, tablefmt='grid'))
     input("Press Enter to go back to the index...")
 
 def updata_user():
     while True:
-        output = os.popen('curl http://localhost:8080/api/user/showall').read()
+        output = os.popen('curl http://iueight2020.synology.me:8080/api/user/showall').read()
         data = json.loads(output)
         os.system('clear')
         table_data = [[item['_id'], item['email'], item['username'], item['admin'], item['datetime']] for item in data]
@@ -83,7 +93,7 @@ def updata_user():
     else:
         pass
     json_payload_str = json.dumps(json_payload)
-    output = os.popen(f'curl -X PUT http://localhost:8080/api/user/update/{userid} -H "Content-Type: application/json" -d \'{json_payload_str}\'').read()
+    output = os.popen(f'curl -X PUT http://iueight2020.synology.me:8080/api/user/update/{userid} -H "Content-Type: application/json" -d \'{json_payload_str}\'').read()
     data = json.loads(output)
     os.system('clear')
     table_data = [[data['message']]]
@@ -92,7 +102,7 @@ def updata_user():
     input("Press Enter to go back to the index...")
     
 def check_server():
-    url = "http://localhost:8080"
+    url = "http://iueight2020.synology.me:8080"
     try:
         response = requests.get(url)
         return True
@@ -103,7 +113,7 @@ def check_server():
 
 def find_with_username():
     username = str(input('Input username: '))
-    output = os.popen(f'curl http://localhost:8080/api/user/get_with_username/{username}').read()
+    output = os.popen(f'curl http://iueight2020.synology.me:8080/api/user/get_with_username/{username}').read()
     data = json.loads(output)
     os.system('clear')
     table_data = [[item['_id'], item['email'], item['username'], item['admin'], item['datetime']] for item in data]
@@ -112,7 +122,7 @@ def find_with_username():
     input("Press Enter to go back to the index...")
 
 def get_blog():
-    output = os.popen('curl http://localhost:8080/api/blogs/get_all_blog').read()
+    output = os.popen('curl http://iueight2020.synology.me:8080/api/blogs/get_all_blog').read()
     data = json.loads(output)
     os.system('clear')
     table_data = []
@@ -125,7 +135,7 @@ def get_blog():
 
 def get_blog_comment():
     blog_id = str(input('Input blog id: '))
-    output = os.popen(f'curl http://localhost:8080/api/blogs/get_blog_comment/{blog_id}').read()
+    output = os.popen(f'curl http://iueight2020.synology.me:8080/api/blogs/get_blog_comment/{blog_id}').read()
     data = json.loads(output)
     os.system('clear')
     table_data = []
@@ -148,7 +158,7 @@ def delete_comment():
             True
         else:
             break
-    output = os.popen(f'curl -X DELETE http://localhost:8080/api/blogs/delete_comment/{comment_id}').read()
+    output = os.popen(f'curl -X DELETE http://iueight2020.synology.me:8080/api/blogs/delete_comment/{comment_id}').read()
     data = json.loads(output)
     os.system('clear')
     table_data = [[data['message']]]
