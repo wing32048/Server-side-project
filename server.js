@@ -228,6 +228,9 @@ app.delete('/api/blogs/delete_comment/:comment_id', async (req, res) => {
     }
 });
 
+const Post = mongoose.model('Post', postSchema, 'blog');
+
+// Routes
 // Create a post
 app.post('/blog/create', async (req, res) => {
   const { user_id, title, content, channel } = req.body;
