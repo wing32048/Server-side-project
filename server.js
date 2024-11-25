@@ -245,7 +245,7 @@ app.delete('/api/blogs/delete_blog/:user_id', async (req, res) => {
     }
 });
 
-app.delete('/api/blogs/delete_comment/:user_id', async (req, res) => {
+app.delete('/api/user/delete_comment/:user_id', async (req, res) => {
     const userid = req.params.user_id;
     try {
         const commentCollection = mongoose.connection.collection('comment');
