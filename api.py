@@ -4,7 +4,6 @@ import requests
 import time
 from tabulate import tabulate
 
-
 def showalluser():
     output = os.popen('curl http://localhost:8080/api/user/showall').read()
     data = json.loads(output)
@@ -98,8 +97,11 @@ def checkserver():
     url = "http://localhost:8080"
     try:
         response = requests.get(url)
+        return True
     except requests.ConnectionError:
         print(f"{url} is unreachable or the connection is refused.")
+        input("Press Enter")
+        return False
 
 while True:
     index = {
@@ -108,7 +110,8 @@ while True:
         3: 'Drop user',
         4: 'Update user'
     }
-    checkserver()
+    if not checkserver():
+        break
     try:
         os.system('clear')
         table_data = [[key, value] for key, value in index.items()]
