@@ -126,6 +126,39 @@ app.put('/api/user/update/:userid', async (req, res) => {
     }
 });
 
+
+//for create.ejs (create post)
+app.post('/posts/create', async (req, res) => {
+  const { title, content, channel } = req.body;
+  const user_id = req.session.user_id;
+
+  if (!user_id) {
+    return res.status(403).send('You must be logged in to create a post');
+  }
+
+  // Validate all fields are filled
+  if (!title || !content || !channel) {
+    return res.render('create', { error: 'All fields are required!' });
+  }
+
+  try {
+    const newPost = new Post({
+      user_id,
+      title,
+      content,
+      channel,
+      datetime: new Date(),
+    });
+
+    await newPost.save();
+    res.redirect('/forum'); // Redirect to the forum page after saving
+  } catch (err) {
+    console.error('Error creating post:', err);
+    res.render('create', { error: 'An unexpected error occurred. Please try again.' });
+  }
+});
+
+
 //for createcomment.ejs
 app.post('/posts/:id/comment', async (req, res) => {
   const { content } = req.body;
