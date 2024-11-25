@@ -45,7 +45,7 @@ def drop_user():
     data_user = json.loads(output_user)
     output_blog = os.popen(f'curl -X DELETE http://iueight2020.synology.me:8080/api/blogs/delete_blog/{userid}').read()
     data_blog = json.loads(output_blog)
-    output_comment = os.popen(f'curl -X DELETE http://iueight2020.synology.me:8080/api/blogs/delete_comment/{userid}').read()
+    output_comment = os.popen(f'curl -X DELETE http://iueight2020.synology.me:8080/api/user/delete_comment/{userid}').read()
     data_comment = json.loads(output_comment)
     os.system('clear')
     table_data = [[data_user['message']]]
@@ -137,6 +137,12 @@ def get_blog_comment():
     output = os.popen('curl http://iueight2020.synology.me:8080/api/blogs/get_all_blog').read()
     data = json.loads(output)
     os.system('clear')
+    table_data = []
+    for item in data:
+        userdetails = item.get('userdetails', [{}])[0]
+        table_data.append([item.get('_id', ''), userdetails.get('username', ''), item.get('title', ''), item.get('content', ''), item.get('datetime', ''), item.get('channel', '')])
+    headers = ["_id", "username", "title", "content", "datetime", "channel"]
+    print(tabulate(table_data, headers=headers, tablefmt="grid"))
     blog_id = str(input('Input blog id: '))
     output = os.popen(f'curl http://iueight2020.synology.me:8080/api/blogs/get_blog_comment/{blog_id}').read()
     data = json.loads(output)
