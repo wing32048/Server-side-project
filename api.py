@@ -6,8 +6,9 @@ from tabulate import tabulate
 
 
 def showalluser():
-    output = os.popen('curl http://localhost:8080/api/showalluser').read()
+    output = os.popen('curl http://localhost:8080/api/user/showall').read()
     data = json.loads(output)
+    print(data)
     os.system('clear')
     table_data = [[item['_id'], item['email'], item['username'], item['admin']] for item in data]
     headers = ['id', 'email', 'username', 'admin']
@@ -19,7 +20,7 @@ def createuser():
     email = str(input('What is the email: '))
     username = str(input('What is the username: '))
     password = str(input('What is the password: '))
-    output = os.popen(f'curl -X POST http://localhost:8080/api/newuser -H "Content-Type: application/json" -d \'{{"email": "{email}", "username": "{username}", "password": "{password}"}}\'').read()
+    output = os.popen(f'curl -X POST http://localhost:8080/api/user/add -H "Content-Type: application/json" -d \'{{"email": "{email}", "username": "{username}", "password": "{password}"}}\'').read()
     data = json.loads(output)
     os.system('clear')
     table_data = [[data['message']]]
@@ -29,7 +30,7 @@ def createuser():
 
 def dropuser():
     while True:
-        output = os.popen('curl http://localhost:8080/api/showalluser').read()
+        output = os.popen('curl http://localhost:8080/api/user/showall').read()
         data = json.loads(output)
         os.system('clear')
         table_data = [[item['_id'], item['email'], item['username'], item['admin']] for item in data]
@@ -43,7 +44,7 @@ def dropuser():
             True
         else:
             break
-    output = os.popen(f'curl -X DELETE http://localhost:8080/api/dropuser/{userid}').read()
+    output = os.popen(f'curl -X DELETE http://localhost:8080/api/user/drop/{userid}').read()
     data = json.loads(output)
     os.system('clear')
     table_data = [[data['message']]]
@@ -53,7 +54,7 @@ def dropuser():
 
 def updatauser():
     while True:
-        output = os.popen('curl http://localhost:8080/api/showalluser').read()
+        output = os.popen('curl http://localhost:8080/api/user/showall').read()
         data = json.loads(output)
         os.system('clear')
         table_data = [[item['_id'], item['email'], item['username'], item['admin']] for item in data]
@@ -85,7 +86,7 @@ def updatauser():
     else:
         pass
     json_payload_str = json.dumps(json_payload)
-    output = os.popen(f'curl -X PUT http://localhost:8080/api/updateuser/{userid} -H "Content-Type: application/json" -d \'{json_payload_str}\'').read()
+    output = os.popen(f'curl -X PUT http://localhost:8080/api/user/update/{userid} -H "Content-Type: application/json" -d \'{json_payload_str}\'').read()
     data = json.loads(output)
     os.system('clear')
     table_data = [[data['message']]]
@@ -99,19 +100,15 @@ def checkserver():
         response = requests.get(url)
     except requests.ConnectionError:
         print(f"{url} is unreachable or the connection is refused.")
-        os.popen('npm start')
-        print('Starting server in 10s')
-        time.sleep(10)
-
 
 while True:
-    checkserver()
     index = {
         1: 'Showall user',
         2: 'Create user',
         3: 'Drop user',
         4: 'Update user'
     }
+    checkserver()
     try:
         os.system('clear')
         table_data = [[key, value] for key, value in index.items()]
