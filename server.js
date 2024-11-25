@@ -228,48 +228,38 @@ app.delete('/api/blogs/delete_comment/:comment_id', async (req, res) => {
     }
 });
 
-const Post = mongoose.model('Post', postSchema, 'blog');
+app.delete('/api/blogs/delete_blog/:user_id', async (req, res) => {
+    const userid = req.params.user_id;
+    try {
+        const blogCollection = mongoose.connection.collection('blog');
+        const result = await blogCollection.deleteMany({ user_id: userid });
 
-// Routes
-// Create a post
-app.post('/blog/create', async (req, res) => {
-  const { user_id, title, content, channel } = req.body;
-
-  // Validate required fields
-  if (!user_id || !title || !content || !channel) {
-    return res.status(400).json({ error: 'All fields (user_id, title, content, channel) are required' });
-  }
-
-  try {
-    // Check if the user exists
-    const user = await User.findOne({ user_id });
-
-
-    // Create a new post
-    const newPost = new Post({
-      user_id,
-      title,
-      content,
-      channel,
-    });
-
-    await newPost.save();
-    res.status(201).json({ message: 'Post created successfully', post: newPost });
-  } catch (err) {
-    console.error('Error creating post:', err);
-    res.status(500).json({ error: 'An unexpected error occurred. Please try again.' });
-  }
+        if (result.deletedCount > 0) {
+            res.json({ message: `All blog for user with user_id ${userid} have been successfully deleted.` });
+        } else {
+            res.status(404).json({ message: `No blog found for user with user_id ${userid} to delete.` });
+        }
+    } catch (error) {
+        console.error("Error deleting blog:", error);
+        res.status(500).json({ error: 'An error occurred while deleting the bolg.' });
+    }
 });
 
-// Get all posts
-app.get('/blog', async (req, res) => {
-  try {
-    const blog = await Post.find();
-    res.status(200).json(blog);
-  } catch (err) {
-    console.error('Error fetching posts:', err);
-    res.status(500).json({ error: 'Internal server error' });
-  }
+app.delete('/api/blogs/delete_comment/:user_id', async (req, res) => {
+    const userid = req.params.user_id;
+    try {
+        const commentCollection = mongoose.connection.collection('comment');
+        const result = await commentCollection.deleteMany({ user_id: userid });
+
+        if (result.deletedCount > 0) {
+            res.json({ message: `All comments for user with user_id ${userid} have been successfully deleted.` });
+        } else {
+            res.status(404).json({ message: `No comments found for user with user_id ${userid} to delete.` });
+        }
+    } catch (error) {
+        console.error("Error deleting comments:", error);
+        res.status(500).json({ error: 'An error occurred while deleting the comments.' });
+    }
 });
 
 app.listen(PORT, () => {
