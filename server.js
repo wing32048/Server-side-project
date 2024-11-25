@@ -228,6 +228,47 @@ app.delete('/api/blogs/delete_comment/:comment_id', async (req, res) => {
     }
 });
 
+// Create a post
+app.post('/blog/create', async (req, res) => {
+  const { user_id, title, content, channel } = req.body;
+
+  // Validate required fields
+  if (!user_id || !title || !content || !channel) {
+    return res.status(400).json({ error: 'All fields (user_id, title, content, channel) are required' });
+  }
+
+  try {
+    // Check if the user exists
+    const user = await User.findOne({ user_id });
+
+
+    // Create a new post
+    const newPost = new Post({
+      user_id,
+      title,
+      content,
+      channel,
+    });
+
+    await newPost.save();
+    res.status(201).json({ message: 'Post created successfully', post: newPost });
+  } catch (err) {
+    console.error('Error creating post:', err);
+    res.status(500).json({ error: 'An unexpected error occurred. Please try again.' });
+  }
+});
+
+// Get all posts
+app.get('/blog', async (req, res) => {
+  try {
+    const blog = await Post.find();
+    res.status(200).json(blog);
+  } catch (err) {
+    console.error('Error fetching posts:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
