@@ -1,4 +1,5 @@
 # Server-side-project
+# TO RUN server.js
 ```
 sudo npm install
 ```
@@ -6,10 +7,9 @@ sudo npm install
 ```
 npm start
 ```
-# TO RUN server.js
 
+# TO RUN API in python
 ```
 python api.py
 ```
 
-# TO RUN API in python
