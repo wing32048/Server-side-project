@@ -51,7 +51,7 @@ const USER = mongoose.model('user', userSchema);
 
 app.use(express.json());
 
-app.post('/api/newuser', async (req, res) => {
+app.post('/api/user/add', async (req, res) => {
     const { email, username, password } = req.body;
     if (!email || !username || !password) {
         return res.status(400).json({ message: 'Email, username, and password are required' });
@@ -67,7 +67,7 @@ app.post('/api/newuser', async (req, res) => {
 });
 // curl -X POST http://localhost:8080/api/newuser -H "Content-Type: application/json" -d \
 // '{"email": "lau.boss@lauboss.com", "username": "lauboss", "password": "P@ssw0rd"}'
-app.get('/api/showalluser', async (req, res) => {
+app.get('/api/user/showall', async (req, res) => {
     try {
         const users = await USER.find();
         res.json(users);
@@ -76,8 +76,8 @@ app.get('/api/showalluser', async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
-// curl http://localhost:8080/api/showalluser
-app.delete('/api/dropuser/:user_id', async (req, res) => {
+// curl http://localhost:8080/api/user/showall
+app.delete('/api/user/drop/:user_id', async (req, res) => {
     const userid = req.params.user_id;
     try {
         const user = await USER.findById(userid);
@@ -97,7 +97,7 @@ app.delete('/api/dropuser/:user_id', async (req, res) => {
     }
 });
 // curl -X DELETE http://localhost:8080/api/dropuser/7dde9edc-5323-48a3-8d19-ef8a2ccc741c
-app.put('/api/updateuser/:userid', async (req, res) => {
+app.put('/api/user/update/:userid', async (req, res) => {
     const { userid } = req.params;
     const { email, username, password, admin } = req.body;
     try {
