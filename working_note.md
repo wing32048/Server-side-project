@@ -1,6 +1,0 @@
-# The login and registration pages are completed and can be run in node.js.
-Implementation function:
->+ 1. After registration, the data will be transferred to the database in json format. json includes uuid, username, email, hashed password and registration time.
->+ 2. After logging in, you will jump to another success.ejs page. When the mailbox address is admin@admin.com, it will jump to the admin.ejs page.
->+ 3. There will be a logout button on the page inside. When pressed, it will jump to the Logout.ejs page, and then wait for 5 seconds. There is a logout button on the logout page. When pressed, it will return to the registration page and will be cleared. The current cookie.
->+ 4. After modifying the cookie, you will return to the login page.
