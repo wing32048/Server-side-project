@@ -134,6 +134,9 @@ def get_blog():
     input("Press Enter to go back to the index...")
 
 def get_blog_comment():
+    output = os.popen('curl http://iueight2020.synology.me:8080/api/blogs/get_all_blog').read()
+    data = json.loads(output)
+    os.system('clear')
     blog_id = str(input('Input blog id: '))
     output = os.popen(f'curl http://iueight2020.synology.me:8080/api/blogs/get_blog_comment/{blog_id}').read()
     data = json.loads(output)
