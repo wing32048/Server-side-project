@@ -1,0 +1,197 @@
+const express = require('express');
+const mongoose = require('mongoose');
+const { v4: uuidv4 } = require('uuid'); // Import uuid library
+
+const app = express();
+const PORT = 8080;
+
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Database connection
+const uri = "mongodb+srv://www-data:RBFarENUKSNgpAVg@cluster0.talem.mongodb.net/project?retryWrites=true&w=majority&appName=Cluster0";
+mongoose
+  .connect(uri)
+  .then(() => console.log('Connected to MongoDB'))
+  .catch((err) => console.error('MongoDB connection error:', err));
+
+// User Schema and Model
+const userSchema = new mongoose.Schema({
+  user_id: {
+    type: String,
+    default: uuidv4, // Generate a UUID for each user
+    required: true,
+  },
+  email: {
+    type: String,
+    required: true,
+  },
+  username: {
+    type: String,
+    required: true,
+  },
+  password: {
+    type: String,
+    required: true,
+  },
+  admin: {
+    type: Boolean,
+    default: false,
+  },
+}, { collection: 'user' });
+
+const User = mongoose.model('User', userSchema);
+
+// Post Schema and Model
+const postSchema = new mongoose.Schema({
+  _id: {
+    type: String,
+    default: uuidv4, // Generate a UUID for each post
+    required: true,
+  },
+  user_id: {
+    type: String,
+    required: true, // Should correspond to `user_id` in the `User` model
+  },
+  title: {
+    type: String,
+    required: true,
+  },
+  content: {
+    type: String,
+    required: true,
+  },
+  channel: {
+    type: String,
+    required: true,
+  },
+  datetime: {
+    type: Date,
+    default: Date.now, // Custom datetime field for post creation
+  },
+}, { timestamps: false }); // Automatically adds `createdAt` and `updatedAt` fields
+
+const Post = mongoose.model('Post', postSchema, 'blog');
+
+// Routes
+// Create a post
+app.post('/blog/create', async (req, res) => {
+  const { user_id, title, content, channel } = req.body;
+
+  // Validate required fields
+  if (!user_id || !title || !content || !channel) {
+    return res.status(400).json({ error: 'All fields (user_id, title, content, channel) are required' });
+  }
+
+  try {
+    // Check if the user exists
+    const user = await User.findOne({ user_id });
+
+
+    // Create a new post
+    const newPost = new Post({
+      user_id,
+      title,
+      content,
+      channel,
+    });
+
+    await newPost.save();
+    res.status(201).json({ message: 'Post created successfully', post: newPost });
+  } catch (err) {
+    console.error('Error creating post:', err);
+    res.status(500).json({ error: 'An unexpected error occurred. Please try again.' });
+  }
+});
+
+// Get all posts
+app.get('/blog', async (req, res) => {
+  try {
+    const blog = await Post.find();
+    res.status(200).json(blog);
+  } catch (err) {
+    console.error('Error fetching posts:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+//comment
+
+
+// Comment Schema and Model
+const commentSchema = new mongoose.Schema({
+  _id: {
+    type: String,
+    default: uuidv4, // Automatically generates a UUID for the comment
+  },
+  blog_id: {
+    type: String,
+    required: true, // Links to the relevant blog post
+  },
+  user_id: {
+    type: String,
+    required: true, // Identifies the user who made the comment
+  },
+  content: {
+    type: String,
+    required: true, // The comment content
+  },
+  datetime: {
+    type: Date,
+    default: Date.now, // Timestamp for the comment
+  },
+}, {
+  collection: 'comments', // Explicitly set the collection name to 'comments'
+});
+
+// Define the Comment model
+
+
+// Routes
+
+const Comment = mongoose.model('Comment', commentSchema, 'comment');
+// Get blog details for pre-filling the comment form
+app.get('/blog/:blog_id', async (req, res) => {
+  const { blog_id } = req.params;
+
+  try {
+    const blog = await Post.findById(blog_id);
+    if (!blog) {
+      return res.status(404).json({ error: 'Blog post not found' });
+    }
+
+    res.status(200).json(blog);
+  } catch (err) {
+    console.error('Error fetching blog details:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Add a new comment to a blog
+app.post('/comment/create', async (req, res) => {
+  const { blog_id, user_id, content } = req.body;
+
+  if (!blog_id || !user_id || !content) {
+    return res.status(400).json({ error: 'All fields (blog_id, user_id, content) are required' });
+  }
+
+  try {
+    const blogExists = await Post.exists({ _id: blog_id });
+    if (!blogExists) {
+      return res.status(404).json({ error: 'Blog post not found' });
+    }
+
+    const newComment = new Comment({ blog_id, user_id, content });
+    await newComment.save();
+    res.status(201).json({ message: 'Comment added successfully', comment: newComment });
+  } catch (err) {
+    console.error('Error creating comment:', err);
+    res.status(500).json({ error: 'An unexpected error occurred.' });
+  }
+});
+
+// Start the server
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
+});
