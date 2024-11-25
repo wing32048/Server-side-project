@@ -125,6 +125,55 @@ app.put('/api/user/update/:userid', async (req, res) => {
         return res.status(500).json({ message: `Failed with user_id ${userid} to update user` });
     }
 });
+
+//for createcomment.ejs
+app.post('/posts/:id/comment', async (req, res) => {
+  const { content } = req.body;
+  const blog_id = req.params.id;
+  const user_id = req.session.user_id; // Retrieve user_id from session
+
+  try {
+    // Validate content
+    if (!content || content.trim() === '') {
+      return res.status(400).render('createcomment', {
+        blog_id,
+        title: 'Post Title', // Replace with the title fetched earlier
+        error: 'Comment content cannot be empty.',
+      });
+    }
+
+    // Validate the post exists
+    const post = await Post.findById(blog_id);
+    if (!post) {
+      return res.status(404).render('createcomment', {
+        blog_id,
+        title: 'Unknown Post',
+        error: 'The post you are commenting on does not exist.',
+      });
+    }
+
+    // Create and save the comment
+    const newComment = new Comment({
+      blog_id,
+      content,
+      user_id,
+      datetime: new Date(),
+    });
+    await newComment.save();
+
+    // Redirect back to the post
+    res.redirect(`/posts/${blog_id}`);
+  } catch (err) {
+    console.error('Error adding comment:', err);
+    res.status(500).render('createcomment', {
+      blog_id,
+      title: 'Unknown Post',
+      error: 'An unexpected error occurred. Please try again later.',
+    });
+  }
+});
+
+
 // curl -X PUT http://localhost:8080/api/updateuser/14dcb036-fbad-49cf-be5f-6028c4b99a2d \
 // -H "Content-Type: application/json" \
 // -d '{
