@@ -8,6 +8,7 @@
         "ejs": "*",
         "passport": "*",
         "express-session": "*",
+        "cookie-parser": "*",
         "passport-facebook":"*",
         "mongoose":"*",
         "uuid":"*",
