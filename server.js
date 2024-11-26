@@ -233,7 +233,7 @@ app.get('/blogs/:id', async (req, res) => {
             }
         ]).toArray();
 
-        res.render('blogcomments', { blogTitle: blogTitle, aggregationResult: aggregationResult, blogContent: blogContent });
+        res.render('blogcomments', { blogTitle: blogTitle, aggregationResult: aggregationResult, blogContent: blogContent, commentid: blogid });
     } catch (err) {
         console.error(err);
         res.status(500).send('Internal Server Error');
