@@ -71,7 +71,7 @@ http://iueight2020.synology.me:8080/
 
 	>Login information: 
 	> - admin@admin.com/P@ssw0rd 	(Administrator)     
-	> - loser@cc.com/P@ssw0rd 	(User)
+	> - loser@cc.com/123 	(User)
 	> 
 	> Click the word "Login", enter the login information and click the login button below to sign in.
 
