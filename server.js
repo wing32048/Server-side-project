@@ -139,7 +139,7 @@ app.get('/blogs/:id', async (req, res) => {
             }
         ]).toArray();
 
-        res.render('blogComments', { blogTitle: blogTitle, aggregationResult: aggregationResult });
+        res.render('blogcomments', { blogTitle: blogTitle, aggregationResult: aggregationResult });
     } catch (err) {
         console.error(err);
         res.status(500).send('Internal Server Error');
