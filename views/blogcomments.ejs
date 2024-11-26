@@ -149,9 +149,6 @@
         <h1><%= blogTitle %></h1>
         <h2><%= blogContent %></h2>
         <form action="/createcomment/<%= commentid %>" method="POST">
-        <button class="comment-button">
-        Comment
-        </button>
         </form>
         <table>
             <tr>
@@ -165,15 +162,18 @@
                     <td><%= comment.content %></td>
                     <td><%= new Date(comment.datetime).toLocaleString() %></td>
                     <td>
-                    <form action="/deletecomment/<%= comment._id %>" method="POST">
-                    	<button type="submit" class="delete-button">
-                    	Delete
-                    	</button>
-                    </form>
+                        <form action="/deletecomment/<%= comment._id %>" method="POST">
+                            <button type="submit" class="delete-button">
+                                Delete
+                            </button>
+                        </form>
                     </td>
                 </tr>
-            <% }); %>
-        </table>
+                <% }); %>
+            </table>
+            <button class="comment-button">
+            Comment
+            </button>
     </div>
 </body>
 </html>

@@ -319,11 +319,15 @@ app.post('/deletecomment/:id', async (req, res) => {
 	const commentCollection = mongoose.connection.collection('comment');
     const comment = await commentCollection.findOne({ _id: commentid });
 	const result = await commentCollection.deleteOne({ _id: commentid });
-res.redirect(`back`);
+    res.redirect(`back`);
 } catch (error) {
 	console.error('Error deleting comment:', error);
 	res.status(500).send('Server Error');
 }});
+
+app.get('/api/test', async (req, res) => {
+    return res.status(201).json({ message: 'Hello world!' });
+});
 
 app.post('/api/user/add', async (req, res) => {
     const { email, username, password } = req.body;
