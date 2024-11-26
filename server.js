@@ -50,22 +50,19 @@ app.set('view engine', 'ejs');
 // 中间件函数检查 cookie 和 session
 function checkAuth(req, res, next) {
   if (req.session.user && req.cookies.user) {
-    // 检查 session 和 cookie 是否匹配
-    bcrypt.compare(req.session.user, req.cookies.user, (err, isMatch) => {
-      if (isMatch) {
-        return next(); // 继续到下一个中间件或路由处理程序
-      } else {
-        // 销毁 session 并清除 cookie
-        req.session.destroy(err => {
-          if (err) {
-            console.log('Failed to destroy session:', err);
-            return res.redirect('/');
-          }
-          res.clearCookie('user');
-          res.redirect('/');
-        });
-      }
-    });
+    if (req.session.user === req.cookies.user) {
+      return next(); // 继续到下一个中间件或路由处理程序
+    } else {
+      // 销毁 session 并清除 cookie
+      req.session.destroy(err => {
+        if (err) {
+          console.log('Failed to destroy session:', err);
+          return res.redirect('/');
+        }
+        res.clearCookie('user');
+        res.redirect('/');
+      });
+    }
   } else {
     res.redirect('/');
   }
@@ -119,8 +116,7 @@ app.post('/login', async (req, res) => {
       const isMatch = await bcrypt.compare(password, user.password);
       if (isMatch) {
         req.session.user = user._id; // 存储 UUID 到 session
-        const hashedUuid = await bcrypt.hash(user._id, 10); // 哈希化 UUID
-        res.cookie('user', hashedUuid, { maxAge: 24 * 60 * 60 * 1000, httpOnly: true }); // 存储哈希化后的 UUID 到 cookie，有效期一天
+        res.cookie('user', user._id, { maxAge: 24 * 60 * 60 * 1000, httpOnly: true }); // 直接存储 UUID 到 cookie，有效期一天
 
         // 根据用户角色重定向
         if (user.admin) {
