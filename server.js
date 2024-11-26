@@ -173,6 +173,37 @@ app.post('/logout', (req, res) => {
     });
 });
 
+app.get('/reset_password', (req, res) => {
+    res.render('reset_password');
+});
+
+app.post('/reset', async (req, res) => {
+    const { email, newPassword, confirmPassword } = req.body;
+
+    if (newPassword !== confirmPassword) {
+        return res.status(400).send('Passwords do not match');
+    }
+
+    try {
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(404).send('User not found');
+        }
+
+        user.password = newPassword; // No need to hash the password here
+
+        await user.save();
+
+        const script = `<script>alert('Password reset successful');</script>`;
+        res.send(script);
+        res.redirect('/')
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('An error occurred while resetting the password');
+    }
+});
+
 app.get('/blogs', async (req, res) => {
     try {
     	const blogCollection = mongoose.connection.collection('blog');
