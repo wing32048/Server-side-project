@@ -211,6 +211,7 @@ app.get('/blogs/:id', async (req, res) => {
             return res.status(404).send('Blog not found');
         }
         const blogTitle = blog.title;
+    const blogContent = blog.content;
         const commentCollection = mongoose.connection.collection('comment');
         const aggregationResult = await commentCollection.aggregate([
             {
@@ -232,7 +233,8 @@ app.get('/blogs/:id', async (req, res) => {
                 }
             }
         ]).toArray();
-        res.render('blogcomments', { blogTitle: blogTitle, aggregationResult: aggregationResult });
+
+        res.render('blogcomments', { blogTitle: blogTitle, aggregationResult: aggregationResult, blogContent: blogContent });
     } catch (err) {
         console.error(err);
         res.status(500).send('Internal Server Error');
