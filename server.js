@@ -313,6 +313,18 @@ app.get('/search', async (req, res) => {
     }
 });
 
+app.post('/deletecomment/:id', async (req, res) => { 
+    try { 
+	const commentid = req.params.id;
+	const commentCollection = mongoose.connection.collection('comment');
+    const comment = await commentCollection.findOne({ _id: commentid });
+	const result = await commentCollection.deleteOne({ _id: commentid });
+res.redirect(`back`);
+} catch (error) {
+	console.error('Error deleting comment:', error);
+	res.status(500).send('Server Error');
+}});
+
 app.post('/api/user/add', async (req, res) => {
     const { email, username, password } = req.body;
     if (!email || !username || !password) {
