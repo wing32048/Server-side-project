@@ -147,8 +147,7 @@ app.post('/login', async (req, res) => {
         const isMatch = await bcrypt.compare(password, user.password);
         if (isMatch) {
         req.session.user = user._id; // 存储 UUID 到 session
-        const hashedUuid = await bcrypt.hash(user._id, 10); // 哈希化 UUID
-        res.cookie('user', hashedUuid, { maxAge: 24 * 60 * 60 * 1000, httpOnly: true }); // 存储哈希化后的 UUID 到 cookie，有效期一天
+        res.cookie('user', user._id, { maxAge: 24 * 60 * 60 * 1000, httpOnly: true }); // 存储哈希化后的 UUID 到 cookie，有效期一天
         res.redirect('/blogs'); // 重定向到 success 页
         
         } else {
