@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Comment</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #009fdc;
+      color: white;
+      padding: 15px 0;
+      text-align: center;
+    }
+    .container {
+      width: 90%;
+      max-width: 800px;
+      margin: 20px auto;
+      border: 1px solid #000;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #005a72;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+      float: right;
+    }
+    button:hover {
+      background-color: #007a9a;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>ABC Forum</h1>
+  </header>
+  <div class="container">
+    <form action="/comment/<%= comment._id %>?_method=PUT" method="POST">
+      <!-- Method override to handle PUT requests -->
+      <input type="hidden" name="_method" value="PUT">
+
+      <label for="content">Edit Comment:</label>
+      <textarea id="content" name="content" rows="5" required><%= comment.content %></textarea>
+
+      <button type="submit">Save Changes</button>
+    </form>
+  </div>
+</body
+</html>
+

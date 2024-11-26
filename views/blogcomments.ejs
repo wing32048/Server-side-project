@@ -148,8 +148,6 @@
     <div class="content">
         <h1><%= blogTitle %></h1>
         <h2><%= blogContent %></h2>
-        <form action="/createcomment/<%= commentid %>" method="POST">
-        </form>
         <table>
             <tr>
                 <th>Username</th>
@@ -171,9 +169,11 @@
                 </tr>
                 <% }); %>
             </table>
-            <button class="comment-button">
-            Comment
-            </button>
-    </div>
+            <form action="/createcomment/<%= commentid %>" method="POST">
+                <button class="comment-button">
+                Comment
+                </button>
+            </form>
+        </div>
 </body>
 </html>
