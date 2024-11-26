@@ -355,21 +355,40 @@ app.post('/deletecomment/:id', async (req, res) => {
 	console.error('Error deleting comment:', error);
 	res.status(500).send('Server Error');
 }});
+// Route for displaying the form to create a new blog
+app.get('/createblog', (req, res) => {
+    res.render('createblog');
+});
 
-app.post('/blog/create', (req, res) => {
+app.post('/blog/create', async(req, res) => {
     const { title, content } = req.body;
-    const userId = req.cookies.userId;
-    // Create a new blog post with automatically generated _id and datetime
+    const userId = req.cookies.user;
     const newBlog = new Blog({ user_id: userId, title, content });
-    
-    newBlog.save()
-        .then(savedBlog => {
-            res.status(201).json({ message: 'Blog created successfully', blog: savedBlog });
-        })
-        .catch(error => {
-            console.error('Error creating blog:', error);
-            res.status(500).send('An error occurred while creating the blog.');
-        });
+    try {
+        await newBlog.save();
+        res.redirect('/blogs');
+        } catch (error) {
+        res.status(400).send('Error registering user: ' + error.message);
+    }
+});
+
+app.post('/createcomment/:post_id', (req, res) => {
+    res.render('createcomment', { blog_id: req.params.post_id });
+});
+
+
+app.post('/comment/create/:blog_id', async (req, res) => {
+    const blogId = req.params.blog_id;
+    const { content } = req.body;
+    const userId = req.cookies.user; // ensure user cookie is set
+    const newComment = new Comment({ user_id: userId, blog_id: blogId, content });
+
+    try {
+        await newComment.save();
+        res.redirect(`/blogs/${blogId}`);
+    } catch (error) {
+        res.status(400).send('Error creating comment: ' + error.message);
+    }
 });
 
 app.get('/api/test', async (req, res) => {
