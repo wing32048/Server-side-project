@@ -1,15 +1,20 @@
-# Server-side-project
-# TO RUN server.js
-```
-sudo npm install
-```
+# Group 29 Server-side-project
 
-```
-npm start
-```
+# Functions of our website
+- Signup  
+- Login  
+- Forget Password  
+- Create Blogs and comments  
+- Show comments created time  
+- Search Posts
+- Delete comments
+- Find with username
 
-# TO RUN API in python
-```
-python api.py
-```
+
+
+# Prerequisite
+Download the file and install the dependency using the commands `sudo npm install` and `npm start`
+
+# Running the nodejs
+To check out the site, go to localhost:8080.
 
