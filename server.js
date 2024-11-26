@@ -2,14 +2,14 @@ const express = require('express');
 const mongoose = require('mongoose');
 const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcrypt');
-
 const app = express();
 const PORT = 8080;
-
 const uri = "mongodb+srv://www-data:RBFarENUKSNgpAVg@cluster0.talem.mongodb.net/project?retryWrites=true&w=majority&appName=Cluster0";
 
-mongoose.connect(uri);
+app.set('view engine', 'ejs');
+app.use(express.json());
 
+mongoose.connect(uri);
 const userSchema = new mongoose.Schema({
     _id: {
         type: String,
@@ -42,7 +42,7 @@ userSchema.pre('save', async function(next) {
     if (!user.isModified('password')) {
         return next();
     }
-
+    
     try {
         const hashedPassword = await bcrypt.hash(user.password, 10);
         user.password = hashedPassword;
@@ -52,9 +52,159 @@ userSchema.pre('save', async function(next) {
     }
 });
 
-const USER = mongoose.model('user', userSchema);
+const blogSchema = new mongoose.Schema({
+    _id: {
+        type: String,
+        default: uuidv4
+    },
+    user_id: {
+        type: String,
+        required: true
+    },
+    title: {
+        type: String,
+        required: true
+    },
+    content: {
+        type: String,
+        required: true
+    },
+    datetime: {
+        type: String
+    }
+}, { collection: 'blog' });
 
-app.use(express.json());
+const USER = mongoose.model('user', userSchema);
+const Blog = mongoose.model('Blog', blogSchema);
+
+app.get('/blogs', async (req, res) => {
+    try {
+    	const blogCollection = mongoose.connection.collection('blog');
+    	const aggregationResult = await blogCollection.aggregate([
+        {
+            $lookup: {
+            from: 'user',
+            localField: 'user_id',
+            foreignField: '_id',
+            as: 'userdetails'
+            }
+        },
+        { $unwind: '$userdetails' },
+        {
+            $project: {
+            title: 1,
+            content: 1,
+            channel :1,
+            datetime: 1,
+            'userdetails.username': 1
+            }
+        }
+        ]).toArray();
+        res.render('list', { blogs: aggregationResult});
+    } catch (err) {
+        res.status(500).send(err);
+    }
+});
+
+app.get('/blogs/:id', async (req, res) => {
+    try {
+        const blogId = req.params.id;
+        const blog = await mongoose.connection.collection('blog').findOne({ _id: blogId });
+
+        if (!blog) {
+            return res.status(404).send('Blog not found');
+        }
+
+        const blogTitle = blog.title;
+
+        const commentCollection = mongoose.connection.collection('comment');
+        const aggregationResult = await commentCollection.aggregate([
+            {
+                $match: {
+                    blog_id: blogId
+                }
+            },
+            {
+                $lookup: {
+                    from: 'user',
+                    localField: 'user_id',
+                    foreignField: '_id',
+                    as: 'userdetails'
+                }
+            },
+            {
+                $sort: {
+                    datetime: 1
+                }
+            }
+        ]).toArray();
+
+        res.render('blogComments', { blogTitle: blogTitle, aggregationResult: aggregationResult });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+app.get('/search', async (req, res) => {
+    const searchString = req.query.search;
+
+    try {
+        if (!searchString) {
+            return res.redirect('/blogs');
+        }
+        const regex = new RegExp(searchString, 'i');
+
+        const blogCollection = mongoose.connection.collection('blog');
+        const aggregationResult = await blogCollection.aggregate([
+            {
+                $lookup: {
+                    from: 'user',
+                    localField: 'user_id',
+                    foreignField: '_id',
+                    as: 'userdetails'
+                }
+            },
+            { $unwind: '$userdetails' },
+            {
+                $match: {
+                    title: { $regex: regex }
+                }
+            },
+            {
+                $project: {
+                    title: 1,
+                    content: 1,
+                    channel: 1,
+                    datetime: 1,
+                    'userdetails.username': 1
+                }
+            }
+        ]).toArray();
+
+        if (aggregationResult.length === 0) {
+            return res.render('noresults', { searchQuery: searchString });
+        }
+
+        res.render('list', { blogs: aggregationResult });
+    } catch (err) {
+        res.status(500).send(err);
+    }
+});
+
+// app.get('/search', async (req, res) => {
+//     const query = req.query.query;
+//     if (!query) {
+//         return res.redirect('/blogs');
+//     }
+//     try {
+//         const blog = await Blog.find({ blog: { $regex: query, $options: 'i' } });
+//         res.render('list', { blogs: blog });
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).json({ error: 'An error occurred while fetching users.' });
+//     }
+// });
 
 app.post('/api/user/add', async (req, res) => {
     const { email, username, password } = req.body;

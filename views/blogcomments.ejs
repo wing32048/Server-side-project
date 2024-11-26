@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Comments</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1><%= blogTitle %></h1>
+    <table>
+        <tr>
+            <th>Username</th>
+            <th>Content</th>
+            <th>Date and Time</th>
+        </tr>
+        <% aggregationResult.forEach(comment => { %>
+            <tr>
+                <td><%= comment.userdetails[0].username %></td>
+                <td><%= comment.content %></td>
+                <td><%= new Date(comment.datetime).toLocaleString() %></td>
+            </tr>
+        <% }); %>
+    </table>
+</body>
+</html>
