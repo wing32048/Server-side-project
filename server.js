@@ -389,7 +389,7 @@ app.get('/api/blogs/get_all_blog', async (req, res) => {
             },
             {
                 $sort: {
-                    datatime: 1
+                    datetime: 1
                 }
             }
         ]).toArray();
@@ -422,7 +422,7 @@ app.get('/api/blogs/get_blog_comment/:blogid', async (req, res) => {
             },
             {
                 $sort: {
-                    datatime: 1
+                    datetime: 1
                 }
             }
         ]).toArray();
