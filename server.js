@@ -147,6 +147,9 @@ app.post('/login', async (req, res) => {
         const isMatch = await bcrypt.compare(password, user.password);
         if (isMatch) {
         req.session.user = user._id; // 存储 UUID 到 session
+        if (user.admin){
+            res.cookie('isAdmin', 'true');
+        }
         res.cookie('user', user._id, { maxAge: 24 * 60 * 60 * 1000, httpOnly: true }); // 存储哈希化后的 UUID 到 cookie，有效期一天
         res.redirect('/blogs'); // 重定向到 success 页
         
@@ -168,6 +171,7 @@ app.post('/logout', (req, res) => {
         console.log('Failed to destroy session:', err);
         return res.redirect('/admin');
         }
+        res.clearCookie('isAdmin');
         res.clearCookie('user');
         res.render('logout');
     });
@@ -234,6 +238,7 @@ app.get('/blogs', async (req, res) => {
 });
 
 app.get('/blogs/:id', async (req, res) => {
+    const isAdmin = req.cookies.isAdmin === 'true';
     try {
         const blogId = req.params.id;
         const blog = await mongoose.connection.collection('blog').findOne({ _id: blogId });
@@ -264,7 +269,7 @@ app.get('/blogs/:id', async (req, res) => {
             }
         ]).toArray();
 
-        res.render('blogcomments', { blogTitle: blogTitle, aggregationResult: aggregationResult, blogContent: blogContent, commentid: blogId });
+        res.render('blogcomments', { isAdmin: isAdmin, blogTitle: blogTitle, aggregationResult: aggregationResult, blogContent: blogContent, commentid: blogId });
     } catch (err) {
         console.error(err);
         res.status(500).send('Internal Server Error');
