@@ -72,10 +72,9 @@
 
     <!-- Comment Section -->
     <div class="form-group">
-      <form action="/comment/create" method="POST">
+      <form action="/blog/create" method="POST">
         <label for="content">Comment</label>
         <textarea id="content" name="content" placeholder="Enter your comment" required></textarea>
-        <!-- Hidden inputs for blog_id and user_id -->
         <input type="hidden" id="blog_id" name="blog_id" value="<%= blogId %>">
         <input type="hidden" id="user_id" name="user_id" value="<%= userId %>">
         

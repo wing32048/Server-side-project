@@ -103,7 +103,8 @@ const blogSchema = new mongoose.Schema({
         required: true
     },
     datetime: {
-        type: String
+        type: Date,
+        default: Date.now
     }
 }, { collection: 'blog' });
 
@@ -131,7 +132,7 @@ const commentSchema = new mongoose.Schema({
 }, { collection: 'comment' });
 
 const USER = mongoose.model('user', userSchema);
-const Post = mongoose.model('Post', blogSchema);
+const Blog = mongoose.model('Blog', blogSchema);
 const Comment = mongoose.model('Comment', commentSchema);
 
 app.get('/', (req, res) => {
@@ -354,6 +355,22 @@ app.post('/deletecomment/:id', async (req, res) => {
 	console.error('Error deleting comment:', error);
 	res.status(500).send('Server Error');
 }});
+
+app.post('/blog/create', (req, res) => {
+    const { title, content } = req.body;
+    const userId = req.cookies.userId;
+    // Create a new blog post with automatically generated _id and datetime
+    const newBlog = new Blog({ user_id: userId, title, content });
+    
+    newBlog.save()
+        .then(savedBlog => {
+            res.status(201).json({ message: 'Blog created successfully', blog: savedBlog });
+        })
+        .catch(error => {
+            console.error('Error creating blog:', error);
+            res.status(500).send('An error occurred while creating the blog.');
+        });
+});
 
 app.get('/api/test', async (req, res) => {
     return res.status(201).json({ message: 'Hello world!' });
