@@ -185,7 +185,7 @@ app.post('/reset', async (req, res) => {
     }
 
     try {
-        const user = await User.findOne({ email });
+        const user = await USER.findOne({ email });
 
         if (!user) {
             return res.status(404).send('User not found');
