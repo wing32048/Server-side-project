@@ -153,19 +153,24 @@
                 <th>Username</th>
                 <th>Comment</th>
                 <th>Created at</th>
+                <% if (isAdmin) { %>
+                    <th>Action</th>
+                <% } %>
             </tr>
             <% aggregationResult.forEach(comment => { %>
                 <tr>
                     <td><%= comment.userdetails[0].username %></td>
                     <td><%= comment.content %></td>
                     <td><%= new Date(comment.datetime).toLocaleString() %></td>
-                    <td>
-                        <form action="/deletecomment/<%= comment._id %>" method="POST">
-                            <button type="submit" class="delete-button">
-                                Delete
-                            </button>
-                        </form>
-                    </td>
+                    <% if (isAdmin) { %>
+                        <td>
+                            <form action="/deletecomment/<%= comment._id %>" method="POST">
+                                <button type="submit" class="delete-button">
+                                    Delete
+                                </button>
+                            </form>
+                        </td>
+                    <% } %>
                 </tr>
                 <% }); %>
             </table>
