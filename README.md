@@ -6,10 +6,9 @@
 	Students ID + Name:
 	- Wong Kin Wui 		13512817
 	- Ngai Kin Fung 	13734198
-	- 
-	- 
 	- Law Cheuk Hin 	13677010
-
+	- 
+	- 
 
 # 2. Project file intro
 - server.js: a brief summary of functionalities it provided:
