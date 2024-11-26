@@ -130,17 +130,9 @@ app.post('/signup', async (req, res) => {
         if (existingUser) {
             return res.status(400).json({ message: 'User already exists' });
         }
-        const hashedPassword = await bcrypt.hash(password, 10); // 哈希化密码
-        const newUser = new USER({
-            _id: uuidv4(), // 设置 _id 为 UUID
-            email,
-            username,
-            password: hashedPassword,
-            admin: false, // 默认管理员为 false
-            datetime: new Date() // 设置 datetime 为当前时间
-        });
+        const newUser = new USER({ email, username, password });
         await newUser.save();
-        res.redirect('/login'); // 成功注册后重定向到首页
+        res.redirect('/'); // 成功注册后重定向到首页
         } catch (error) {
         res.status(400).send('Error registering user: ' + error.message);
     }
