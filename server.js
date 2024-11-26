@@ -110,13 +110,10 @@ app.get('/blogs/:id', async (req, res) => {
     try {
         const blogId = req.params.id;
         const blog = await mongoose.connection.collection('blog').findOne({ _id: blogId });
-
         if (!blog) {
             return res.status(404).send('Blog not found');
         }
-
         const blogTitle = blog.title;
-
         const commentCollection = mongoose.connection.collection('comment');
         const aggregationResult = await commentCollection.aggregate([
             {
@@ -138,7 +135,6 @@ app.get('/blogs/:id', async (req, res) => {
                 }
             }
         ]).toArray();
-
         res.render('blogcomments', { blogTitle: blogTitle, aggregationResult: aggregationResult });
     } catch (err) {
         console.error(err);
@@ -148,13 +144,11 @@ app.get('/blogs/:id', async (req, res) => {
 
 app.get('/search', async (req, res) => {
     const searchString = req.query.search;
-
     try {
         if (!searchString) {
             return res.redirect('/blogs');
         }
         const regex = new RegExp(searchString, 'i');
-
         const blogCollection = mongoose.connection.collection('blog');
         const aggregationResult = await blogCollection.aggregate([
             {
@@ -181,30 +175,14 @@ app.get('/search', async (req, res) => {
                 }
             }
         ]).toArray();
-
         if (aggregationResult.length === 0) {
             return res.render('noresults', { searchQuery: searchString });
         }
-
         res.render('list', { blogs: aggregationResult });
     } catch (err) {
         res.status(500).send(err);
     }
 });
-
-// app.get('/search', async (req, res) => {
-//     const query = req.query.query;
-//     if (!query) {
-//         return res.redirect('/blogs');
-//     }
-//     try {
-//         const blog = await Blog.find({ blog: { $regex: query, $options: 'i' } });
-//         res.render('list', { blogs: blog });
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).json({ error: 'An error occurred while fetching users.' });
-//     }
-// });
 
 app.post('/api/user/add', async (req, res) => {
     const { email, username, password } = req.body;
