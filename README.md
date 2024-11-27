@@ -67,17 +67,17 @@
 
 # 3. The cloud-based server URL (your server host running on the cloud platform) for testing:
 
-http://iueight2020.synology.me:8080/
+	http://iueight2020.synology.me:8080/
 
 
 
 # 4. Operation guides (like a user flow) for your server
 - the use of Login/Logout pages: a list of valid login information, sign in steps? 
 
-	>Login information: 
+	## **Login information**
 	> - admin@admin.com/P@ssw0rd 	(Administrator)     
 	> - loser@cc.com/123 	(User)
-	>     
+	>    
 	> Click the word "Login", enter the login information and click the login button below to sign in.    
     
 	## **Administrator Privilage**
