@@ -19,11 +19,11 @@
 	>Create Blogs and comments  
 	>Search blogs   
 	>Edit blogs
- >Delete Blogs   															(Administrator Privilage)
-	>Delete comments 														(Administrator Privilage)
+ 	>Delete Blogs   			(Administrator Privilage)
+	>Delete comments 			(Administrator Privilage)
 	>Show comments created time    
-	>Search with username 									(Administrator Privilage)   
- >Logout
+	>Search with username 			(Administrator Privilage)   
+ 	>Logout
 
 	
 
