@@ -18,11 +18,11 @@
 	>Forget Password  
 	>Create Blogs and comments  
 	>Show comments created time  
-	>Search blogs
-	>Edit blogs
-	>Delete comments
-	>Delete Blogs
-	>Find with username
+	>Search blogs   
+	>Edit blogs   
+	>Delete comments    
+	>Delete Blogs   
+	>Find with username   
 
 	
 
