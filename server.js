@@ -255,6 +255,11 @@ app.get('/blogs', async (req, res) => {
             datetime: 1,
             'userdetails.username': 1
             }
+        },
+        {
+            $sort: {
+                datetime: -1
+            }
         }
         ]).toArray();
         res.render('list', { blogs: aggregationResult});
