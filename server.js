@@ -103,11 +103,37 @@ const blogSchema = new mongoose.Schema({
         required: true
     },
     datetime: {
-        type: String
+        type: Date,
+        default: Date.now
     }
 }, { collection: 'blog' });
 
+const commentSchema = new mongoose.Schema({
+    _id: {
+    type: String,
+    default: uuidv4
+    },
+    blog_id: {
+    type: String,
+    required: true
+    },
+    user_id: {
+    type: String,
+    required: true
+    },
+    content: {
+    type: String,
+    required: true
+    },
+    datetime: {
+    type: Date,
+    default: Date.now
+    }
+}, { collection: 'comment' });
+
 const USER = mongoose.model('user', userSchema);
+const Blog = mongoose.model('Blog', blogSchema);
+const Comment = mongoose.model('Comment', commentSchema);
 
 app.get('/', (req, res) => {
     res.render('login_out');
@@ -147,8 +173,10 @@ app.post('/login', async (req, res) => {
         const isMatch = await bcrypt.compare(password, user.password);
         if (isMatch) {
         req.session.user = user._id; // 存储 UUID 到 session
-        const hashedUuid = await bcrypt.hash(user._id, 10); // 哈希化 UUID
-        res.cookie('user', hashedUuid, { maxAge: 24 * 60 * 60 * 1000, httpOnly: true }); // 存储哈希化后的 UUID 到 cookie，有效期一天
+        if (user.admin){
+            res.cookie('isAdmin', 'true');
+        }
+        res.cookie('user', user._id, { maxAge: 24 * 60 * 60 * 1000, httpOnly: true }); // 存储哈希化后的 UUID 到 cookie，有效期一天
         res.redirect('/blogs'); // 重定向到 success 页
         
         } else {
@@ -169,9 +197,41 @@ app.post('/logout', (req, res) => {
         console.log('Failed to destroy session:', err);
         return res.redirect('/admin');
         }
+        res.clearCookie('isAdmin');
         res.clearCookie('user');
         res.render('logout');
     });
+});
+
+app.get('/reset_password', (req, res) => {
+    res.render('reset_password');
+});
+
+app.post('/reset', async (req, res) => {
+    const { email, newPassword, confirmPassword } = req.body;
+
+    if (newPassword !== confirmPassword) {
+        return res.status(400).send('Passwords do not match');
+    }
+
+    try {
+        const user = await USER.findOne({ email });
+
+        if (!user) {
+            return res.status(404).send('User not found');
+        }
+
+        user.password = newPassword; // No need to hash the password here
+
+        await user.save();
+
+        const script = `<script>alert('Password reset successful');</script>`;
+        res.send(script);
+        res.redirect('/')
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('An error occurred while resetting the password');
+    }
 });
 
 app.get('/blogs', async (req, res) => {
@@ -204,16 +264,15 @@ app.get('/blogs', async (req, res) => {
 });
 
 app.get('/blogs/:id', async (req, res) => {
+    const isAdmin = req.cookies.isAdmin === 'true';
     try {
         const blogId = req.params.id;
         const blog = await mongoose.connection.collection('blog').findOne({ _id: blogId });
-
         if (!blog) {
             return res.status(404).send('Blog not found');
         }
-	const blogid =blog._id
         const blogTitle = blog.title;
-	const blogContent = blog.content;
+    const blogContent = blog.content;
         const commentCollection = mongoose.connection.collection('comment');
         const aggregationResult = await commentCollection.aggregate([
             {
@@ -236,23 +295,34 @@ app.get('/blogs/:id', async (req, res) => {
             }
         ]).toArray();
 
-        res.render('blogcomments', { blogTitle: blogTitle, aggregationResult: aggregationResult, blogContent: blogContent, commentid: blogid });
+        res.render('blogcomments', { isAdmin: isAdmin, blogTitle: blogTitle, aggregationResult: aggregationResult, blogContent: blogContent, commentid: blogId });
     } catch (err) {
         console.error(err);
         res.status(500).send('Internal Server Error');
     }
 });
-app.post('/deletecomment/:id', async (req, res) => { 
-    try { 
-	const commentid = req.params.id;
-	const commentCollection = mongoose.connection.collection('comment');
-        const comment = await commentCollection.findOne({ _id: commentid });
-	const result = await commentCollection.deleteOne({ _id: commentid });
-res.redirect(`back`);
-} catch (error) {
-	console.error('Error deleting comment:', error);
-	res.status(500).send('Server Error');
-	}});
+
+app.post('/edit/:id', async (req, res) => {
+    const update = req.body;
+    const blogId = req.params.id;
+
+    try {
+        const blog = await mongoose.connection.collection('blog').findOne({ _id: blogId });
+        if (!blog) {
+            return res.status(404).send('Blog not found');
+        }
+
+        const result = await mongoose.connection.collection('blog').updateOne(
+            { _id: blogId },
+            { $set: update }
+        );
+
+        const updatedBlog = await mongoose.connection.collection('blog').findOne({ _id: blogId });
+        res.render("edit", { blog: updatedBlog });
+    } catch (err) {
+        res.status(500).send(err);
+    }
+});
 app.get('/search', async (req, res) => {
     const searchString = req.query.search;
     try {
@@ -293,6 +363,68 @@ app.get('/search', async (req, res) => {
     } catch (err) {
         res.status(500).send(err);
     }
+});
+app.post('/delete/:id' , async (req, res) => {
+	try {
+	const blogid = req.params.id;
+	const blogCollection = mongoose.connection.collection('blog');
+	const blog = await blogCollection.findOne({ _id: blogid });
+	console.log(blog);
+	const result = await blogCollection.deleteOne({ _id: blogid });
+    res.redirect(`/blogs`);
+} catch (error) {
+	console.error('Error deleting blog:', error);
+	res.status(500).send('Server Error');
+}});
+app.post('/deletecomment/:id', async (req, res) => { 
+    try { 
+	const commentid = req.params.id;
+	const commentCollection = mongoose.connection.collection('comment');
+        const comment = await commentCollection.findOne({ _id: commentid });
+	const result = await commentCollection.deleteOne({ _id: commentid });
+    res.redirect(`back`);
+} catch (error) {
+	console.error('Error deleting comment:', error);
+	res.status(500).send('Server Error');
+}});
+// Route for displaying the form to create a new blog
+app.get('/createblog', (req, res) => {
+    res.render('createblog');
+});
+
+app.post('/blog/create', async(req, res) => {
+    const { title, content } = req.body;
+    const userId = req.cookies.user;
+    const newBlog = new Blog({ user_id: userId, title, content });
+    try {
+        await newBlog.save();
+        res.redirect('/blogs');
+        } catch (error) {
+        res.status(400).send('Error registering user: ' + error.message);
+    }
+});
+
+app.post('/createcomment/:post_id', (req, res) => {
+    res.render('createcomment', { blog_id: req.params.post_id });
+});
+
+
+app.post('/comment/create/:blog_id', async (req, res) => {
+    const blogId = req.params.blog_id;
+    const { content } = req.body;
+    const userId = req.cookies.user; // ensure user cookie is set
+    const newComment = new Comment({ user_id: userId, blog_id: blogId, content });
+
+    try {
+        await newComment.save();
+        res.redirect(`/blogs/${blogId}`);
+    } catch (error) {
+        res.status(400).send('Error creating comment: ' + error.message);
+    }
+});
+
+app.get('/api/test', async (req, res) => {
+    return res.status(201).json({ message: 'Hello world!' });
 });
 
 app.post('/api/user/add', async (req, res) => {
