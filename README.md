@@ -51,16 +51,16 @@
 	- 	admin.ejs
  	-	blogcomments.ejs
   	-	change.ejs
-  	-	.ejs
- 	-	.ejs
-  	-	.ejs
-  	-	.ejs
- 	-	.ejs
-  	-	.ejs
-	- 	.ejs
- 	-	.ejs
-  	-	.ejs
-  	-	.ejs
+  	-	createblog.ejs
+ 	-	createcomment.ejs
+  	-	edit.ejs
+  	-	editcomment.ejs
+ 	-	list.ejs
+  	-	login_out.ejs
+	- 	logout.ejs
+ 	-	noresults.ejs
+  	-	reset_password.ejs
+  	-	success.ejs
 
 
 
