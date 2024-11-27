@@ -21,8 +21,9 @@
 	Search blogs
 	Edit blogs
 	Delete comments
-	Delete blogs
+	Delete Blogs
 	Find with username
+
 	
 
 
