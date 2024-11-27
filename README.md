@@ -17,12 +17,12 @@
 	>Login  
 	>Forget Password  
 	>Create Blogs and comments  
-	>Show comments created time  
 	>Search blogs   
-	>Edit blogs   
-	>Delete comments    
-	>Delete Blogs   
-	>Find with username   
+	>Edit blogs
+ 	>Delete Blogs   
+	>Delete comments
+	>Show comments created time    
+	>Search with username (Administrator Privilage)   
 
 	
 
@@ -77,15 +77,21 @@ http://iueight2020.synology.me:8080/
 	>Login information: 
 	> - admin@admin.com/P@ssw0rd 	(Administrator)     
 	> - loser@cc.com/123 	(User)
-	> 
-	> Click the word "Login", enter the login information and click the login button below to sign in.
+	>     
+	> Click the word "Login", enter the login information and click the login button below to sign in.    
+    
+	## **Administrator Privilage**
+	>- Drop User
+	>- Drop Blog
+	>- Drop Comments
+ 	>- Find User username 	
 
 
 - the use of your CRUD web pages: which button or UI is used to implement create, read, update, and delete?
-	> On the main page, the login button has implemented read, while the sign up button has implemented read and create.
-	> On the login page, there are also a "Forget Password" button, this has implemented read and update.
-	> After successful login, there is a `Create a New Blog` button, it implemented create. 
-	> When login as an admininstrator, you are able to delete comments, by clicking the blog that comments located and you'll see a Delete button, the delete button implements delete.
+	> On the main page, the login button has implemented read, while the sign up button has implemented read and create.    
+	> On the login page, there are also a "Forget Password" button, this has implemented read and update.   
+	> After successful login, there is a `Create a New Blog` button, it implemented create.    
+	> When login as an admininstrator, you are able to delete comments, by clicking the blog that comments located and you'll see a Delete button, the delete button implements delete.   
 
 
 - the use your RESTful CRUD services: the lists of APIs? HTTP request types? Path URI? How to test them? 
