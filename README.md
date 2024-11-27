@@ -3,6 +3,7 @@
 
 # 1. Project info: Project name, Group info (group no., students’ names and SID)
 	Project Name: XXXBlog
+ 	Group ID: 29
 	Students ID + Name:
 	- Wong Kin Wui 		13512817
 	- Ngai Kin Fung 	13734198
