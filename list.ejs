@@ -136,9 +136,11 @@
                         <span class="username">by <%= blog.userdetails.username %></span>
                         <span class="datetime"><%= new Date(blog.datetime).toLocaleString() %></span>
                     </div>
+                    <% if (isAdmin) { %>
                     <form action="/delete/<%= blog._id %>?_method=DELETE" method="POST">
                         <button type="submit" class="delete-button">Delete</button>
                     </form>
+                    <% } %>
                 </div>
             <% }); %>
         <% } else { %>
