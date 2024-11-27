@@ -17,9 +17,12 @@
 	Forget Password  
 	Create Blogs and comments  
 	Show comments created time  
-	Search Posts
+	Search blogs
+	Edit blogs
 	Delete comments
+	Delete blogs
 	Find with username
+	
 
 
 - package.json: 
