@@ -235,6 +235,7 @@ app.post('/reset', async (req, res) => {
 });
 
 app.get('/blogs', async (req, res) => {
+	const isAdmin = req.cookies.isAdmin === 'true';
     try {
     	const blogCollection = mongoose.connection.collection('blog');
     	const aggregationResult = await blogCollection.aggregate([
@@ -262,7 +263,7 @@ app.get('/blogs', async (req, res) => {
             }
         }
         ]).toArray();
-        res.render('list', { blogs: aggregationResult});
+        res.render('list', { blogs: aggregationResult, isAdmin: isAdmin});
     } catch (err) {
         res.status(500).send(err);
     }

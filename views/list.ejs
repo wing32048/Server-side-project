@@ -60,6 +60,9 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
         .post {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 20px;
             padding: 15px;
             border-bottom: 1px solid #ddd;
@@ -88,6 +91,19 @@
             font-size: 16px;
             line-height: 1.5;
         }
+        .delete-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .delete-button:hover {
+            background-color: #0056b3;
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
@@ -115,9 +131,16 @@
         <% if (blogs.length > 0) { %>
             <% blogs.forEach(function(blog) { %>
                 <div class="post">
-                    <h2><a href="/blogs/<%= blog._id %>"><%= blog.title %></a></h2>
-                    <span class="username">by <%= blog.userdetails.username %></span>
-                    <span class="datetime"><%= new Date(blog.datetime).toLocaleString() %></span>
+                    <div>
+                        <h2><a href="/blogs/<%= blog._id %>"><%= blog.title %></a></h2>
+                        <span class="username">by <%= blog.userdetails.username %></span>
+                        <span class="datetime"><%= new Date(blog.datetime).toLocaleString() %></span>
+                    </div>
+                    <% if (isAdmin) { %>
+                    <form action="/delete/<%= blog._id %>?_method=DELETE" method="POST">
+                        <button type="submit" class="delete-button">Delete</button>
+                    </form>
+                    <% } %>
                 </div>
             <% }); %>
         <% } else { %>
