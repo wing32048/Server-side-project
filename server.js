@@ -225,8 +225,8 @@ app.post('/reset', async (req, res) => {
 
         await user.save();
 
-        const script = `<script>alert('Password reset successful');</script>`;
-        res.send(script);
+        // const script = `<script>alert('Password reset successful');</script>`;
+        // res.send(script);
         res.redirect('/')
     } catch (error) {
         console.error(error);

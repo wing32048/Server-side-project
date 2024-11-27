@@ -128,8 +128,8 @@ def get_blog():
     table_data = []
     for item in data:
         userdetails = item.get('userdetails', [{}])[0]
-        table_data.append([item.get('_id', ''), userdetails.get('username', ''), item.get('title', ''), item.get('content', ''), item.get('datetime', ''), item.get('channel', '')])
-    headers = ["_id", "username", "title", "content", "datetime", "channel"]
+        table_data.append([item.get('_id', ''), userdetails.get('username', ''), item.get('title', ''), item.get('content', ''), item.get('datetime', '')])
+    headers = ["_id", "username", "title", "content", "datetime"]
     print(tabulate(table_data, headers=headers, tablefmt="grid"))
     input("Press Enter to go back to the index...")
 
@@ -140,8 +140,8 @@ def get_blog_comment():
     table_data = []
     for item in data:
         userdetails = item.get('userdetails', [{}])[0]
-        table_data.append([item.get('_id', ''), userdetails.get('username', ''), item.get('title', ''), item.get('content', ''), item.get('datetime', ''), item.get('channel', '')])
-    headers = ["_id", "username", "title", "content", "datetime", "channel"]
+        table_data.append([item.get('_id', ''), userdetails.get('username', ''), item.get('title', ''), item.get('content', ''), item.get('datetime', '')])
+    headers = ["_id", "username", "title", "content", "datetime"]
     print(tabulate(table_data, headers=headers, tablefmt="grid"))
     blog_id = str(input('Input blog id: '))
     output = os.popen(f'curl http://iueight2020.synology.me:8080/api/blogs/get_blog_comment/{blog_id}').read()
@@ -182,8 +182,8 @@ def delete_blog():
     table_data = []
     for item in data:
         userdetails = item.get('userdetails', [{}])[0]
-        table_data.append([item.get('_id', ''), userdetails.get('username', ''), item.get('title', ''), item.get('content', ''), item.get('datetime', ''), item.get('channel', '')])
-    headers = ["_id", "username", "title", "content", "datetime", "channel"]
+        table_data.append([item.get('_id', ''), userdetails.get('username', ''), item.get('title', ''), item.get('content', ''), item.get('datetime', '')])
+    headers = ["_id", "username", "title", "content", "datetime"]
     print(tabulate(table_data, headers=headers, tablefmt="grid"))
     while True:
         blog_id = str(input('Input comment id: '))
