@@ -350,6 +350,34 @@ app.get('/search', async (req, res) => {
     }
 });
 
+app.post('/delete/:id' , async (req, res) => {
+	try {
+	const blogid = req.params.id;
+	const blogCollection = mongoose.connection.collection('blog');
+	const blog = await blogCollection.findOne({ _id: blogid });
+	console.log(blog);
+	const result = await blogCollection.deleteOne({ _id: blogid });
+    res.redirect(`/blogs`);
+} catch (error) {
+	console.error('Error deleting blog:', error);
+	res.status(500).send('Server Error');
+}});
+app.post('/deletecomment/:id', async (req, res) => { 
+    try { 
+	const commentid = req.params.id;
+	const commentCollection = mongoose.connection.collection('comment');
+        const comment = await commentCollection.findOne({ _id: commentid });
+	const result = await commentCollection.deleteOne({ _id: commentid });
+    res.redirect(`back`);
+} catch (error) {
+	console.error('Error deleting comment:', error);
+	res.status(500).send('Server Error');
+}});
+// Route for displaying the form to create a new blog
+app.get('/createblog', (req, res) => {
+    res.render('createblog');
+});
+
 app.post('/deletecomment/:id', async (req, res) => { 
     try { 
 	const commentid = req.params.id;
