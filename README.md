@@ -13,16 +13,16 @@
 
 # 2. Project file intro
 - server.js: a brief summary of functionalities it provided:
-	Signup  
-	Login  
-	Forget Password  
-	Create Blogs and comments  
-	Show comments created time  
-	Search blogs
-	Edit blogs
-	Delete comments
-	Delete Blogs
-	Find with username
+	>Signup  
+	>Login  
+	>Forget Password  
+	>Create Blogs and comments  
+	>Show comments created time  
+	>Search blogs
+	>Edit blogs
+	>Delete comments
+	>Delete Blogs
+	>Find with username
 
 	
 
