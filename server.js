@@ -350,6 +350,28 @@ app.get('/search', async (req, res) => {
     }
 });
 
+app.post('/edit/:id', async (req, res) => {
+    const update = req.body;
+    const blogId = req.params.id;
+
+    try {
+        const blog = await mongoose.connection.collection('blog').findOne({ _id: blogId });
+        if (!blog) {
+            return res.status(404).send('Blog not found');
+        }
+
+        const result = await mongoose.connection.collection('blog').updateOne(
+            { _id: blogId },
+            { $set: update }
+        );
+
+        const updatedBlog = await mongoose.connection.collection('blog').findOne({ _id: blogId });
+        res.render("edit", { blog: updatedBlog });
+    } catch (err) {
+        res.status(500).send(err);
+    }
+});
+
 app.post('/delete/:id' , async (req, res) => {
 	try {
 	const blogid = req.params.id;
