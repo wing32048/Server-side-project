@@ -77,7 +77,7 @@
 
 	## **Login information**
 	> - admin@admin.com/P@ssw0rd 	(Administrator)     
-	> - loser@cc.com/123 	(User)
+	> - lauboss@lauboss.com/P@ssw0rd 	(User)
 	>    
 	> Click the word "Login", enter the login information and click the login button below to sign in.    
     
@@ -99,3 +99,23 @@
 CURL testing commands?
 
 	> `curl http://iueight2020.synology.me:8080/api/test` is a GET Method, it should return `{"message":"Hello world!"}` as respond
+	         
+ 	> `curl http://iueight2020.synology.me:8080/api/user/showall` is a GET Method, it is used for returning blog account data
+       
+ 	> `curl -X POST http://iueight2020.synology.me:8080/api/user/add -H "Content-Type: application/json" -d \'{{"email": "{email}", "username": "{username}", "password": "{password}"}}` is a POST Method, it is used for creating account on the blog
+      
+ 	> `curl -X DELETE http://iueight2020.synology.me:8080/api/user/drop/{userid}` is a DELETE Method, this is used for deleting a blog user account
+       
+ 	> `curl -X DELETE http://iueight2020.synology.me:8080/api/user/delete_blog/{userid}` is a DELETE Method and used for blog post by the user
+        
+ 	> `curl -X DELETE http://iueight2020.synology.me:8080/api/user/delete_comment/{userid}` is a DELETE Method and used for blog comment by the user
+        
+ 	> `curl -X PUT http://iueight2020.synology.me:8080/api/user/update/{userid} -H "Content-Type: application/json" -d \'{json_payload_str}\'` is a PUT Method and use for updating the user data.
+    
+ 	> `curl http://iueight2020.synology.me:8080/api/blogs/get_all_blog` is a GET Method used to show all blogs.
+        
+ 	> `curl http://iueight2020.synology.me:8080/api/blogs/get_blog_comment/{blog_id}` is a GET Method used to show all blogs comments.
+     
+ 	> `curl -X DELETE http://iueight2020.synology.me:8080/api/blogs/delete_comment/{comment_id}` is a DELETE Method used to delete certain comments on blog.
+         
+ 	> `curl -X DELETE http://iueight2020.synology.me:8080/api/blogs/delete_blog/{blog_id}` is a DELETE Method used to delete certain blog post on blog.    
